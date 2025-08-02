@@ -1,0 +1,101 @@
+package dev.zigr.dt.team.ui.storage;
+
+import java.io.IOException;
+
+import org.eclipse.equinox.security.storage.StorageException;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.osgi.service.prefs.BackingStoreException;
+
+import com._1c.g5.v8.dt.platform.services.model.InfobaseReference;
+
+public class SettingsDialog extends Dialog {
+	private Settings storageSettings;
+	private Text txtAddress;
+	private Text txtUser;
+	private Text txtPassword;
+	private Button btnExportMDWithMDO;
+
+	protected SettingsDialog(Shell parentShell, InfobaseReference infobase) {
+		super(parentShell);
+		
+		storageSettings = new Settings(infobase);
+	}
+
+	@Override
+	protected Control createDialogArea(Composite parent) {
+		Composite container = (Composite) super.createDialogArea(parent);
+		GridLayout layout = new GridLayout(2, false);
+		layout.marginRight = 5;
+		layout.marginLeft = 10;
+		container.setLayout(layout);
+		
+		// address
+		Label lblAddress = new Label(container, SWT.NONE);
+		lblAddress.setText("Адрес хранилища:");
+		txtAddress = new Text(container, SWT.BORDER);
+		txtAddress.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		txtAddress.setText(storageSettings.getAddress());
+		
+		// user
+		Label lblUser = new Label(container, SWT.NONE);
+		lblUser.setText("Логин хранилища:");
+		txtUser = new Text(container, SWT.BORDER);
+		txtUser.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		txtUser.setText(storageSettings.getUser());
+		
+		// password
+		Label lblPassword = new Label(container, SWT.NONE);
+		lblPassword.setText("Пароль хранилища:");
+		txtPassword = new Text(container, SWT.BORDER| SWT.PASSWORD);
+		txtPassword.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		txtPassword.setText(storageSettings.getPassword());
+		
+		// exportMDWithMDO
+		btnExportMDWithMDO = new Button(container, SWT.CHECK);
+		btnExportMDWithMDO.setLayoutData(new GridData(SWT.TRAIL, SWT.CENTER, true, false));
+		btnExportMDWithMDO.setSelection(storageSettings.getExportMDWithMDO());
+		Label lblExportMDWithMDO = new Label(container, SWT.NONE);
+		lblExportMDWithMDO.setText("Выгрузка синонима/комментария формы/шаблона с mdo");
+		lblExportMDWithMDO.setText("При изменении .mdo всегда захватывать подчиненные формы/шаблоны");
+		
+		return container;
+	}
+
+	@Override
+	protected boolean isResizable() {
+		return true;
+	}
+
+	@Override
+	protected void createButtonsForButtonBar(Composite parent) {
+		createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
+		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
+	}
+
+	@Override
+	protected void okPressed() {
+		try {
+			storageSettings.setAddress(txtAddress.getText());
+			storageSettings.setUser(txtUser.getText());
+			storageSettings.setPassword(txtPassword.getText());
+			storageSettings.setExportMDWithMDO(btnExportMDWithMDO.getSelection());
+			storageSettings.flush();
+			
+			super.okPressed();
+		} catch (StorageException | BackingStoreException | IOException e) {
+			StorageUiPlugin.logError(e.getMessage(), e);
+			MessageDialog.openError(getShell(), "Ошибка", "Не удалось записать настройки");
+		}
+	}
+}

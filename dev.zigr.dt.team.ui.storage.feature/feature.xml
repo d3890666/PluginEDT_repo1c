@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="dev.zigr.dt.team.ui.storage.feature"
+      label="Configuration repository"
+      version="0.1.0.qualifier"
+      provider-name="Ziganshin Rinat">
+
+   <description>
+      Плагин предоставляет возможность работать EDT с хранилищем конфигурации 1С
+   </description>
+
+   <copyright>
+      Авторские права принадлежат разработчику Зиганшину Ринату
+   </copyright>
+
+   <license url="">
+      Eclipse Public License 2.0
+   </license>
+
+   <plugin
+         id="dev.zigr.dt.team.ui.storage"
+         version="0.0.0"/>
+
+</feature>
