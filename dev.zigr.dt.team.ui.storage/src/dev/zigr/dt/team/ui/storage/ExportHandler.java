@@ -45,15 +45,12 @@ import com._1c.g5.v8.bm.core.BmPlatform;
 import com._1c.g5.v8.bm.core.IBmNamespace;
 import com._1c.g5.v8.bm.core.IBmPlatformTransaction;
 import com._1c.g5.v8.dt.common.FileUtil;
-import com._1c.g5.v8.dt.compare.core.V8FileChecker;
 import com._1c.g5.v8.dt.core.filesystem.IQualifiedNameFilePathConverter;
 import com._1c.g5.v8.dt.core.platform.IBmModelManager;
 import com._1c.g5.v8.dt.export.IExportOperation;
 import com._1c.g5.v8.dt.export.IExportOperationFactory;
 import com._1c.g5.v8.dt.export.IExportStrategy;
 import com._1c.g5.v8.dt.metadata.mdclass.Configuration;
-import com._1c.g5.v8.dt.platform.services.core.infobases.InfobaseAssociationContext;
-import com._1c.g5.v8.dt.platform.services.core.infobases.sync.IConfigDumpInfoStore;
 import com._1c.g5.v8.dt.platform.services.core.runtimes.execution.RuntimeExecutionException;
 import com._1c.g5.v8.dt.team.git.infobases.IGitBranchIssueDescriptor;
 import com.google.inject.Inject;
@@ -66,11 +63,10 @@ public class ExportHandler implements IHandler {
 	private IBmModelManager modelManager;
 	@Inject
 	private IExportOperationFactory exportOperationFactory;
-	@Inject
-	private IConfigDumpInfoStore projectSettingsStore;
 	
 	private Shell shell;
 	private IGitBranchIssueDescriptor issueDescriptor;
+	private Settings storageSettings;
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -86,10 +82,11 @@ public class ExportHandler implements IHandler {
 		IStructuredSelection selection = HandlerUtil.getCurrentStructuredSelection(event);
 		Object firstElement = selection.getFirstElement();
 		issueDescriptor = (IGitBranchIssueDescriptor) Adapters.adapt(firstElement, IGitBranchIssueDescriptor.class);
+		storageSettings = new Settings(issueDescriptor);
 		
 		// diff
 		List<DiffEntry> diff = getBranchDiff();
-		if (diff == null) {
+		if (diff == null || diff.isEmpty()) {
 			return null;
 		}
 		
@@ -134,7 +131,7 @@ public class ExportHandler implements IHandler {
 
 	private boolean pushBranchDiff(List<DiffEntry> diff, Path rootDirectory) throws IOException, CoreException, RuntimeExecutionException, InterruptedException {
 		Path exportDirectory = FileUtil.createTempDirectory("Export", rootDirectory).toPath();
-		Designer designer = new Designer(issueDescriptor);
+		Designer designer = new Designer(issueDescriptor, rootDirectory);
 		
 		// закрытие агента конфигуратора
 		designer.closeDesignerSession();
@@ -147,22 +144,24 @@ public class ExportHandler implements IHandler {
 		}
 		
 		// захват объектов
-		designer.lockObjects(lockObjects, rootDirectory);
+		designer.lockObjects(lockObjects);
 		
 		// проверка отличия конфигурации от конфигурации БД
-		if (!designer.isConfigurationSame(rootDirectory)) {
-			MessageBox dialog = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
-			dialog.setText("Внимание!!!");
-			String textMessage = "После захвата объектов в хранилище обнаружено отличие конфигурации от конфигурации БД!"
-					+ System.lineSeparator() + System.lineSeparator()
-					+ "Это могут быть изменения, полученные из хранилища. Во избежание потерь этих изменений "
-					+ "нужно переключиться на ветку хранилища, импортировать туда все изменения, переключиться на текущую ветку "
-					+ "и влить изменения из ветки хранилища."
-					+ System.lineSeparator() + System.lineSeparator()
-					+ "Все равно продолжить помещение?";
-			dialog.setMessage(textMessage);
-			if (dialog.open() == SWT.NO) {
-				return false;
+		if (!designer.isConfigurationSame()) {
+			if (storageSettings.getPushIfConfigurationChanged()) {
+				MessageBox dialog = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
+				dialog.setText("Внимание!!!");
+				String textMessage = textMessageIfConfigurationChanged()
+						+ System.lineSeparator() + System.lineSeparator()
+						+ "Все равно продолжить помещение?";
+				dialog.setMessage(textMessage);
+				if (dialog.open() == SWT.NO) {
+					return false;
+				}
+			} else {
+				String textMessage = textMessageIfConfigurationChanged();
+				IStatus status = StorageUiPlugin.createErrorStatus(textMessage);
+				throw new CoreException(status);
 			}
 		}
 		
@@ -190,20 +189,9 @@ public class ExportHandler implements IHandler {
 		}
 		
 		// загрузка файлов в базу 1с
-		designer.loadConfigurationFromXml(exportDirectory, listFiles, rootDirectory);
+		designer.loadConfigurationFromXml(exportDirectory, listFiles);
 		
-		// выгрузка ConfigDumpInfo.xml
-		designer.configDumpInfoOnly(rootDirectory);
-		
-		// актуализация ConfigDumpInfo.xml в ветке хранилища
-		Path configDumpInfoFile = rootDirectory.resolve(IConfigDumpInfoStore.CONFIG_DUMP_INFO);
-		InfobaseAssociationContext context = InfobaseAssociationContext.of(issueDescriptor.getBranch().getName());
-		projectSettingsStore.storeConfigDumpInfo(
-				issueDescriptor.getProject(),
-				issueDescriptor.getInfobase(),
-				configDumpInfoFile,
-				context);
-		
+		// 
 		designer.dispose();
 		return true;
 	}
@@ -213,15 +201,11 @@ public class ExportHandler implements IHandler {
 		Set<EObject> topObjects = new HashSet<EObject>();
 		
 		Set<String> sourceFiles = new HashSet<String>();
-		V8FileChecker v8FileChecker = new V8FileChecker();
 		for (DiffEntry entry : diff) {
 			String sourceFile = entry.getNewPath();
-			if (sourceFile == DiffEntry.DEV_NULL
-					|| sourceFile.endsWith("suppress")
-					|| !v8FileChecker.isV8File(sourceFile)) {
-				continue;
+			if (V8FileBuilder.isV8File(sourceFile)) {
+				sourceFiles.add(sourceFile);
 			}
-			sourceFiles.add(sourceFile);
 		}
 		
 		Set<String> fqnStrings = new HashSet<String>();
@@ -245,8 +229,6 @@ public class ExportHandler implements IHandler {
 			EObject topObject = (EObject) transaction.getTopObjectByFqn(ns, fqnString);
 			if (topObject != null) {
 				topObjects.add(topObject);
-				
-				
 			}
 		}
 		transaction.commit();
@@ -260,17 +242,21 @@ public class ExportHandler implements IHandler {
 		Map<QualifiedName, Boolean> result = new HashMap<QualifiedName, Boolean>();
 		
 		Set<String> sourceFiles = new HashSet<String>();
-		V8FileChecker v8FileChecker = new V8FileChecker();
-		Settings storageSettings = new Settings(issueDescriptor.getInfobase());
 		
 		for (DiffEntry entry : diff) {
-			String sourceFile = entry.getOldPath(); // здесь старый путь
-			if (sourceFile == DiffEntry.DEV_NULL
-					|| sourceFile.endsWith("suppress")
-					|| !v8FileChecker.isV8File(sourceFile)) {
-				continue;
+			String oldPath = entry.getOldPath();
+			String newPath = entry.getNewPath();
+			String sourceFile;
+			if (oldPath == DiffEntry.DEV_NULL && newPath.endsWith(".aindex")) {
+				sourceFile = newPath;
 			}
-			sourceFiles.add(sourceFile);
+			else {
+				sourceFile = oldPath;
+			}
+			
+			if (V8FileBuilder.isV8File(sourceFile)) {
+				sourceFiles.add(sourceFile);
+			}
 		}
 		
 		for (String sourceFile : sourceFiles) {
@@ -345,6 +331,9 @@ public class ExportHandler implements IHandler {
 			RenameDetector rd = new RenameDetector(repository);
 			rd.addAll(result);
 			result = rd.compute();
+			if (result.isEmpty()) {
+				MessageDialog.openWarning(shell, "Внимание", "Ветки не различаются");
+			}
 		} catch (GitAPIException | IOException e) {
 			StorageUiPlugin.logError(e.getMessage(), e);
 			MessageDialog.openError(shell, "Ошибка", "Не удалось определить различия веток (см. Журнал ошибок)");
@@ -387,6 +376,15 @@ public class ExportHandler implements IHandler {
 			return false;
 		}
 
+	}
+
+	private String textMessageIfConfigurationChanged() {
+		String textMessage = "После захвата объектов в хранилище обнаружено отличие конфигурации от конфигурации БД!"
+				+ System.lineSeparator() + System.lineSeparator()
+				+ "Это могут быть изменения, полученные из хранилища во время захвата. Во избежание потерь этих изменений "
+				+ "нужно переключиться на ветку хранилища, импортировать туда все изменения, переключиться на текущую ветку "
+				+ "и влить изменения из ветки хранилища.";
+		return textMessage;
 	}
 
 	@Override

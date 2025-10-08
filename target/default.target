@@ -43,6 +43,7 @@
 <unit id="com._1c.g5.v8.dt.rcp" version="0.0.0"/>
 <unit id="com._1c.g5.v8.dt.feature.feature.group" version="0.0.0"/>
 <unit id="com._1c.g5.v8.dt.thirdparty.feature.group" version="0.0.0"/>
+<unit id="com._1c.g5.v8.dt.product.feature.feature.group" version="0.0.0"/>
 </location>
 
 <!-- LIBS -->
@@ -69,9 +70,6 @@
 <unit id="org.eclipse.license.feature.group" version="0.0.0"/>
 <repository location="http://download.eclipse.org/cbi/updates/license/2.0.2.v20181016-2210"/>
 </location>
-	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-		<repository location="https://edt.1c.ru/downloads/releases/ruby/2025.1/"/>
-		<unit id="com._1c.g5.v8.dt.product.feature.feature.group" version="1.33.0.494"/>
-	</location>
+
 </locations>
 </target>

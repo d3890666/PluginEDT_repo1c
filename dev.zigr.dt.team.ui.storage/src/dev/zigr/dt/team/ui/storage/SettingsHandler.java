@@ -20,7 +20,7 @@ public class SettingsHandler implements IHandler {
 		IGitBranchIssueDescriptor issueDescriptor = 
 				(IGitBranchIssueDescriptor) Adapters.adapt(firstElement, IGitBranchIssueDescriptor.class);
 		Shell shell = HandlerUtil.getActiveShell(event);
-		SettingsDialog dialog = new SettingsDialog(shell, issueDescriptor.getInfobase());
+		SettingsDialog dialog = new SettingsDialog(shell, issueDescriptor);
 		dialog.open();
 		
 		return null;

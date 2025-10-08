@@ -42,22 +42,26 @@ public class V8FileBuilder {
 		this.exportDirectory = exportDirectory;
 		sourceFiles = new HashSet<String>();
 		exportFiles = new HashSet<Path>();
-		Settings storageSettings = new Settings(issueDescriptor.getInfobase());
+		Settings storageSettings = new Settings(issueDescriptor);
 		exportMDWithMDO = storageSettings.getExportMDWithMDO();
 	}
-
+	
+	public static boolean isV8File(String sourceFile) {
+		V8FileChecker v8FileChecker = new V8FileChecker();
+		
+		return sourceFile != DiffEntry.DEV_NULL
+				&& !sourceFile.endsWith(".suppress")
+				&& (sourceFile.endsWith(".aindex") || v8FileChecker.isV8File(sourceFile));
+	}
+	
 	public void setSourceFiles(List<DiffEntry> diff) {
 		sourceFiles.clear();
-		V8FileChecker v8FileChecker = new V8FileChecker();
 		
 		for (DiffEntry entry : diff) {
 			String sourceFile = entry.getNewPath();
-			if (sourceFile == DiffEntry.DEV_NULL
-					|| sourceFile.endsWith("suppress")
-					|| !v8FileChecker.isV8File(sourceFile)) {
-				continue;
+			if (isV8File(sourceFile)) {
+				sourceFiles.add(sourceFile);
 			}
-			sourceFiles.add(sourceFile);
 		}
 	}
 
@@ -284,6 +288,9 @@ public class V8FileBuilder {
 		}
 		else if (isInnerTemplateFile(segments, extension)) {
 			getInnerTemplateFile(segments, extension);
+		}
+		else if (isAdditionalIndexesFile(segments, extension)) {
+			getAdditionalIndexesFile(segments, extension);
 		}
 	}
 
@@ -623,6 +630,9 @@ public class V8FileBuilder {
 		else if (isInnerTemplateFile(segments, extension)) {
 			getInnerTemplateFile(segments, extension);
 		}
+		else if (isAdditionalIndexesFile(segments, extension)) {
+			getAdditionalIndexesFile(segments, extension);
+		}
 	}
 
 	private void getDocumentFile(String[] segments, String extension) throws IOException {
@@ -644,6 +654,9 @@ public class V8FileBuilder {
 		else if (isInnerTemplateFile(segments, extension)) {
 			getInnerTemplateFile(segments, extension);
 		}
+		else if (isAdditionalIndexesFile(segments, extension)) {
+			getAdditionalIndexesFile(segments, extension);
+		}
 	}
 
 	private void getDocumentNumeratorFile(String[] segments, String extension) throws IOException {
@@ -658,6 +671,9 @@ public class V8FileBuilder {
 		}
 		else if (isRecordSetModuleFile(segments, 2)) {
 			getRecordSetModuleFile(segments, 2);
+		}
+		else if (isAdditionalIndexesFile(segments, extension)) {
+			getAdditionalIndexesFile(segments, extension);
 		}
 	}
 
@@ -676,6 +692,9 @@ public class V8FileBuilder {
 		}
 		else if (isInnerTemplateFile(segments, extension)) {
 			getInnerTemplateFile(segments, extension);
+		}
+		else if (isAdditionalIndexesFile(segments, extension)) {
+			getAdditionalIndexesFile(segments, extension);
 		}
 	}
 
@@ -758,6 +777,9 @@ public class V8FileBuilder {
 		else if (isInnerTemplateFile(segments, extension)) {
 			getInnerTemplateFile(segments, extension);
 		}
+		else if (isAdditionalIndexesFile(segments, extension)) {
+			getAdditionalIndexesFile(segments, extension);
+		}
 	}
 
 	private void getChartOfAccountsFile(String[] segments, String extension) throws IOException {
@@ -778,6 +800,9 @@ public class V8FileBuilder {
 		}
 		else if (isInnerTemplateFile(segments, extension)) {
 			getInnerTemplateFile(segments, extension);
+		}
+		else if (isAdditionalIndexesFile(segments, extension)) {
+			getAdditionalIndexesFile(segments, extension);
 		}
 	}
 
@@ -800,6 +825,9 @@ public class V8FileBuilder {
 		else if (isInnerTemplateFile(segments, extension)) {
 			getInnerTemplateFile(segments, extension);
 		}
+		else if (isAdditionalIndexesFile(segments, extension)) {
+			getAdditionalIndexesFile(segments, extension);
+		}
 	}
 
 	private void getInformationRegisterFile(String[] segments, String extension) throws IOException {
@@ -820,6 +848,9 @@ public class V8FileBuilder {
 		}
 		else if (isInnerTemplateFile(segments, extension)) {
 			getInnerTemplateFile(segments, extension);
+		}
+		else if (isAdditionalIndexesFile(segments, extension)) {
+			getAdditionalIndexesFile(segments, extension);
 		}
 	}
 
@@ -842,6 +873,9 @@ public class V8FileBuilder {
 		else if (isInnerTemplateFile(segments, extension)) {
 			getInnerTemplateFile(segments, extension);
 		}
+		else if (isAdditionalIndexesFile(segments, extension)) {
+			getAdditionalIndexesFile(segments, extension);
+		}
 	}
 
 	private void getAccountingRegisterFile(String[] segments, String extension) throws IOException {
@@ -862,6 +896,9 @@ public class V8FileBuilder {
 		}
 		else if (isInnerTemplateFile(segments, extension)) {
 			getInnerTemplateFile(segments, extension);
+		}
+		else if (isAdditionalIndexesFile(segments, extension)) {
+			getAdditionalIndexesFile(segments, extension);
 		}
 	}
 
@@ -887,6 +924,9 @@ public class V8FileBuilder {
 		else if (isRecalculationFile(segments)) {
 			getRecalculationFile(segments);
 		}
+		else if (isAdditionalIndexesFile(segments, extension)) {
+			getAdditionalIndexesFile(segments, extension);
+		}
 	}
 
 	private void getBusinessProcesseFile(String[] segments, String extension) throws IOException {
@@ -909,6 +949,9 @@ public class V8FileBuilder {
 		}
 		else if (isInnerTemplateFile(segments, extension)) {
 			getInnerTemplateFile(segments, extension);
+		}
+		else if (isAdditionalIndexesFile(segments, extension)) {
+			getAdditionalIndexesFile(segments, extension);
 		}
 //		else if (segments.length == 3 && "Flowchart.scheme".equals(segments[2])) {
 //			// TODO файлы карты маршрута можно отдельно выгружать
@@ -933,6 +976,9 @@ public class V8FileBuilder {
 		}
 		else if (isInnerTemplateFile(segments, extension)) {
 			getInnerTemplateFile(segments, extension);
+		}
+		else if (isAdditionalIndexesFile(segments, extension)) {
+			getAdditionalIndexesFile(segments, extension);
 		}
 	}
 
@@ -1053,6 +1099,10 @@ public class V8FileBuilder {
 				&& PICTURE_EXTENSIONS.contains(extension);
 	}
 
+	private boolean isAdditionalIndexesFile(String[] segments, String extension) {
+		return segments.length == 3 && "aindex".equals(extension);
+	}
+
 	private String removeExtension(String lastSegment) {
 		int dotIndex = lastSegment.lastIndexOf(46);
 		if (dotIndex != -1) {
@@ -1102,10 +1152,11 @@ public class V8FileBuilder {
 		scanDirectory = exportDirectory.resolve(scanDirectory);
 		Path formsDirectory = scanDirectory.resolve("Forms");
 		Path templatesDirectory = scanDirectory.resolve("Templates");
-		// подчиненные объекты, кроме Forms, Templates и модулей
+		// подчиненные объекты, кроме Forms, Templates, модулей и дополнительных индексов
 		Set<Path> filesInDirectory = getAllFilesInDirectory(scanDirectory);
 		for (Path fileInDirectory : filesInDirectory) {
 			if (fileInDirectory.toString().endsWith(".bsl")
+					|| fileInDirectory.toString().endsWith("AdditionalIndexes.xml")
 					|| fileInDirectory.startsWith(formsDirectory)
 					|| fileInDirectory.startsWith(templatesDirectory)) {
 				continue;
@@ -1176,6 +1227,12 @@ public class V8FileBuilder {
 	}
 
 	private void getInnerTemplateFile(String[] segments, String extension) throws IOException {
+		if (!exportMDWithMDO) {
+			// xml-файл с описанием объекта
+			Path exportFile = Paths.get(segments[0], segments[1], segments[2], segments[3]+".xml");
+			exportFiles.add(exportFile);
+		}
+		
 		Path scanDirectory = Paths.get(segments[0], segments[1], segments[2], segments[3]);
 		scanDirectory = exportDirectory.resolve(scanDirectory);
 		Set<Path> filesInDirectory = getAllFilesInDirectory(scanDirectory);
@@ -1188,6 +1245,12 @@ public class V8FileBuilder {
 		getRecordSetModuleFile(segments, 4);
 	}
 
+	private void getAdditionalIndexesFile(String[] segments, String extension) {
+		Path exportFile = Paths.get(segments[0], segments[1], "Ext", "AdditionalIndexes.xml");
+		exportFiles.add(exportFile);
+	}
+
+	@SuppressWarnings("unused")
 	private void getHelpFile(String[] segments, int index, String extension) throws IOException {
 		// TODO файлы справки можно отдельно выгружать
 		Path helpDirectory = Paths.get(segments[0]);

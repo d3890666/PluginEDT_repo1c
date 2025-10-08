@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.osgi.service.prefs.BackingStoreException;
 
-import com._1c.g5.v8.dt.platform.services.model.InfobaseReference;
+import com._1c.g5.v8.dt.team.git.infobases.IGitBranchIssueDescriptor;
 
 public class SettingsDialog extends Dialog {
 	private Settings storageSettings;
@@ -25,11 +25,12 @@ public class SettingsDialog extends Dialog {
 	private Text txtUser;
 	private Text txtPassword;
 	private Button btnExportMDWithMDO;
+	private Button btnPushIfConfigurationChanged;
 
-	protected SettingsDialog(Shell parentShell, InfobaseReference infobase) {
+	protected SettingsDialog(Shell parentShell, IGitBranchIssueDescriptor issueDescriptor) {
 		super(parentShell);
 		
-		storageSettings = new Settings(infobase);
+		storageSettings = new Settings(issueDescriptor);
 	}
 
 	@Override
@@ -66,8 +67,14 @@ public class SettingsDialog extends Dialog {
 		btnExportMDWithMDO.setLayoutData(new GridData(SWT.TRAIL, SWT.CENTER, true, false));
 		btnExportMDWithMDO.setSelection(storageSettings.getExportMDWithMDO());
 		Label lblExportMDWithMDO = new Label(container, SWT.NONE);
-		lblExportMDWithMDO.setText("Выгрузка синонима/комментария формы/шаблона с mdo");
 		lblExportMDWithMDO.setText("При изменении .mdo всегда захватывать подчиненные формы/шаблоны");
+		
+		// pushIfConfigurationChanged
+		btnPushIfConfigurationChanged = new Button(container, SWT.CHECK);
+		btnPushIfConfigurationChanged.setLayoutData(new GridData(SWT.TRAIL, SWT.CENTER, true, false));
+		btnPushIfConfigurationChanged.setSelection(storageSettings.getPushIfConfigurationChanged());
+		Label lblPushIfConfigurationChanged = new Label(container, SWT.NONE);
+		lblPushIfConfigurationChanged.setText("Помещать даже если конфигурации различаются");
 		
 		return container;
 	}
@@ -90,6 +97,7 @@ public class SettingsDialog extends Dialog {
 			storageSettings.setUser(txtUser.getText());
 			storageSettings.setPassword(txtPassword.getText());
 			storageSettings.setExportMDWithMDO(btnExportMDWithMDO.getSelection());
+			storageSettings.setPushIfConfigurationChanged(btnPushIfConfigurationChanged.getSelection());
 			storageSettings.flush();
 			
 			super.okPressed();
