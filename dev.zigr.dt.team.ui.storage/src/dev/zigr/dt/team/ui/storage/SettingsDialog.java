@@ -17,8 +17,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.osgi.service.prefs.BackingStoreException;
 
-import com._1c.g5.v8.dt.team.git.infobases.IGitBranchIssueDescriptor;
-
 public class SettingsDialog extends Dialog {
 	private Settings storageSettings;
 	private Text txtAddress;
@@ -27,10 +25,10 @@ public class SettingsDialog extends Dialog {
 	private Button btnExportMDWithMDO;
 	private Button btnPushIfConfigurationChanged;
 
-	protected SettingsDialog(Shell parentShell, IGitBranchIssueDescriptor issueDescriptor) {
+	protected SettingsDialog(Shell parentShell, String projectName) {
 		super(parentShell);
 		
-		storageSettings = new Settings(issueDescriptor);
+		storageSettings = new Settings(projectName);
 	}
 
 	@Override

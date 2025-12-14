@@ -5,6 +5,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +17,8 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.commands.IHandlerListener;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Adapters;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -82,56 +86,69 @@ public class ExportHandler implements IHandler {
 		IStructuredSelection selection = HandlerUtil.getCurrentStructuredSelection(event);
 		Object firstElement = selection.getFirstElement();
 		issueDescriptor = (IGitBranchIssueDescriptor) Adapters.adapt(firstElement, IGitBranchIssueDescriptor.class);
-		storageSettings = new Settings(issueDescriptor);
 		
 		// diff
-		List<DiffEntry> diff = getBranchDiff();
-		if (diff == null || diff.isEmpty()) {
+		Map<String, List<DiffEntry>> allDiff = getBranchDiff();
+		if (allDiff == null || allDiff.isEmpty()) {
 			return null;
 		}
 		
-		// rootDirectory
-		Path rootDirectory;
-		try {
-			rootDirectory = FileUtil.createTempDirectory("Zigr").toPath();
-		} catch (IOException e) {
-			StorageUiPlugin.logError(e.getMessage(), e);
-			MessageDialog.openError(shell, "Ошибка", "Операция не выполнена (см. Журнал ошибок)");
-			return null;
-		}
-		
-		// pushBranchDiff
-		boolean result = false;
-		boolean isError = false;
-		try {
-			result = pushBranchDiff(diff, rootDirectory);
-		} catch (IOException | CoreException | RuntimeExecutionException | InterruptedException e) {
-			StorageUiPlugin.logError(e.getMessage(), e);
-			MessageDialog.openError(shell, "Ошибка", "Операция не выполнена (см. Журнал ошибок)");
-			isError = true;
+		boolean result = true;
+		for (Map.Entry<String, List<DiffEntry>> entry : allDiff.entrySet()) {
+			
+			String projectName = entry.getKey();
+			List<DiffEntry> diff = entry.getValue();
+			storageSettings = new Settings(projectName);
+			
+			// rootDirectory
+			Path rootDirectory;
+			try {
+				rootDirectory = FileUtil.createTempDirectory("Zigr").toPath();
+			} catch (IOException e) {
+				StorageUiPlugin.logError(e.getMessage(), e);
+				result = false;
+				break;
+			}
+			
+			// pushBranchDiff
+			try {
+				if (pushBranchDiff(projectName, diff, rootDirectory)) {
+					String message = MessageFormat.format("Операция помещения в хранилище выполнена. ИБ={0}. Проект={1}",
+							issueDescriptor.getInfobase().getName(), projectName);
+					StorageUiPlugin.logInfo(message);
+				} else {
+					result = false;
+				}
+			} catch (IOException | CoreException | RuntimeExecutionException | InterruptedException e) {
+				StorageUiPlugin.logError(e.getMessage(), e);
+				result = false;
+			}
+			
+			// очистка временных файлов
+			try {
+				FileUtil.deleteRecursivelyWithRetries(rootDirectory);
+			} catch (IOException e) {
+				StorageUiPlugin.logError(e.getMessage(), e);
+			}
+			
+			if (!result) {
+				break;
+			}
 		}
 		
 		// результат
 		if (result) {
-			MessageDialog.openInformation(shell, "Поместить в хранилище", "Операция выполнена");
-			StorageUiPlugin.logInfo("Операция помещения в хранилище выполнена. ИБ="+issueDescriptor.getInfobase().getName());
-		} else if (!isError) {
-			MessageDialog.openInformation(shell, "Поместить в хранилище", "Операция не выполнена");
-		}
-		
-		// очистка временных файлов
-		try {
-			FileUtil.deleteRecursivelyWithRetries(rootDirectory);
-		} catch (IOException e) {
-			StorageUiPlugin.logError(e.getMessage(), e);
+			MessageDialog.openInformation(shell, "Поместить в хранилище", "Операция успешно выполнена");
+		} else {
+			MessageDialog.openError(shell, "Поместить в хранилище", "Операция не выполнена (см. Журнал ошибок)");
 		}
 		
 		return null;
 	}
 
-	private boolean pushBranchDiff(List<DiffEntry> diff, Path rootDirectory) throws IOException, CoreException, RuntimeExecutionException, InterruptedException {
+	private boolean pushBranchDiff(String projectName, List<DiffEntry> diff, Path rootDirectory) throws IOException, CoreException, RuntimeExecutionException, InterruptedException {
 		Path exportDirectory = FileUtil.createTempDirectory("Export", rootDirectory).toPath();
-		Designer designer = new Designer(issueDescriptor, rootDirectory);
+		Designer designer = new Designer(issueDescriptor, projectName, rootDirectory);
 		
 		// закрытие агента конфигуратора
 		designer.closeDesignerSession();
@@ -151,22 +168,25 @@ public class ExportHandler implements IHandler {
 			if (storageSettings.getPushIfConfigurationChanged()) {
 				MessageBox dialog = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
 				dialog.setText("Внимание!!!");
-				String textMessage = textMessageIfConfigurationChanged()
+				String textMessage = textMessageIfConfigurationChanged(projectName)
 						+ System.lineSeparator() + System.lineSeparator()
 						+ "Все равно продолжить помещение?";
 				dialog.setMessage(textMessage);
 				if (dialog.open() == SWT.NO) {
+					String message = MessageFormat.format("Операция помещения в хранилище отменена пользователем. ИБ={0}. Проект={1}",
+							issueDescriptor.getInfobase().getName(), projectName);
+					StorageUiPlugin.logInfo(message);
 					return false;
 				}
 			} else {
-				String textMessage = textMessageIfConfigurationChanged();
+				String textMessage = textMessageIfConfigurationChanged(projectName);
 				IStatus status = StorageUiPlugin.createErrorStatus(textMessage);
 				throw new CoreException(status);
 			}
 		}
 		
 		// выгрузка файлов в формате v8
-		EObject[] topObjects = getTopObjects(diff);
+		EObject[] topObjects = getTopObjects(projectName, diff);
 		IExportOperation exportOperation = exportOperationFactory.createExportOperation
 				(exportDirectory, designer.getVersion(), new IncrementalExportStrategy(), topObjects);
 		IProgressMonitor monitor = new NullProgressMonitor();
@@ -176,7 +196,7 @@ public class ExportHandler implements IHandler {
 		}
 		
 		// получение списка файлов к загрузке в базу 1с
-		V8FileBuilder v8FileBuilder = new V8FileBuilder(exportDirectory, issueDescriptor);
+		V8FileBuilder v8FileBuilder = new V8FileBuilder(exportDirectory, projectName);
 		v8FileBuilder.setSourceFiles(diff);
 		Set<Path> exportFiles = v8FileBuilder.getExportFiles();
 		Path listFiles = rootDirectory.resolve("listFiles.txt");
@@ -196,9 +216,10 @@ public class ExportHandler implements IHandler {
 		return true;
 	}
 
-	private EObject[] getTopObjects(List<DiffEntry> diff) {
+	private EObject[] getTopObjects(String projectName, List<DiffEntry> diff) {
 		
 		Set<EObject> topObjects = new HashSet<EObject>();
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 		
 		Set<String> sourceFiles = new HashSet<String>();
 		for (DiffEntry entry : diff) {
@@ -223,7 +244,7 @@ public class ExportHandler implements IHandler {
 		}
 		
 		BmPlatform platform = modelManager.getBmPlatform();
-		IBmNamespace ns = modelManager.getBmNamespace(issueDescriptor.getProject());
+		IBmNamespace ns = modelManager.getBmNamespace(project);
 		IBmPlatformTransaction transaction = platform.beginReadOnlyTransaction(true);
 		for (String fqnString : fqnStrings) {
 			EObject topObject = (EObject) transaction.getTopObjectByFqn(ns, fqnString);
@@ -242,7 +263,6 @@ public class ExportHandler implements IHandler {
 		Map<QualifiedName, Boolean> result = new HashMap<QualifiedName, Boolean>();
 		
 		Set<String> sourceFiles = new HashSet<String>();
-		
 		for (DiffEntry entry : diff) {
 			String oldPath = entry.getOldPath();
 			String newPath = entry.getNewPath();
@@ -311,9 +331,11 @@ public class ExportHandler implements IHandler {
 		return result;
 	}
 
-	public List<DiffEntry> getBranchDiff() {
-		List<DiffEntry> result = null;
+	public Map<String, List<DiffEntry>> getBranchDiff() {
 		
+		Map<String, List<DiffEntry>> result = new HashMap<String, List<DiffEntry>>();
+		
+		List<DiffEntry> allDiff;
 		Repository repository = issueDescriptor.getRepository();
 		try (Git git = new Git(repository)) {
 			String importBranch = issueDescriptor.getBranch().getName();
@@ -326,18 +348,44 @@ public class ExportHandler implements IHandler {
 			AbstractTreeIterator oldTreeParser = prepareTreeParser(repository, importBranch);
 			AbstractTreeIterator newTreeParser = prepareTreeParser(repository, currentBranch);
 			// then the procelain diff-command returns a list of diff entries
-			result = git.diff().setOldTree(oldTreeParser).setNewTree(newTreeParser).call();
+			allDiff = git.diff().setOldTree(oldTreeParser).setNewTree(newTreeParser).call();
 			// RenameDetector
 			RenameDetector rd = new RenameDetector(repository);
-			rd.addAll(result);
-			result = rd.compute();
-			if (result.isEmpty()) {
+			rd.addAll(allDiff);
+			allDiff = rd.compute();
+			if (allDiff.isEmpty()) {
 				MessageDialog.openWarning(shell, "Внимание", "Ветки не различаются");
+				return null;
 			}
 		} catch (GitAPIException | IOException e) {
 			StorageUiPlugin.logError(e.getMessage(), e);
 			MessageDialog.openError(shell, "Ошибка", "Не удалось определить различия веток (см. Журнал ошибок)");
 			return null;
+		}
+		
+		for (DiffEntry entry : allDiff) {
+			String oldPath = entry.getOldPath();
+			String newPath = entry.getNewPath();
+			String sourceFile;
+			if (newPath == DiffEntry.DEV_NULL) {
+				sourceFile = oldPath;
+			}
+			else {
+				sourceFile = newPath;
+			}
+			
+			org.eclipse.core.runtime.IPath path = new org.eclipse.core.runtime.Path(sourceFile);
+			if (path.segmentCount() < 2 || !path.segment(1).equals("src")) {
+				continue;
+			}
+			
+			String projectName = path.segment(0);
+			List<DiffEntry> projectDiff = result.get(projectName);
+			if (projectDiff == null) {
+				projectDiff = new ArrayList<DiffEntry>();
+				result.put(projectName, projectDiff);
+			}
+			projectDiff.add(entry);
 		}
 		
 		return result;
@@ -378,12 +426,13 @@ public class ExportHandler implements IHandler {
 
 	}
 
-	private String textMessageIfConfigurationChanged() {
-		String textMessage = "После захвата объектов в хранилище обнаружено отличие конфигурации от конфигурации БД!"
+	private String textMessageIfConfigurationChanged(String projectName) {
+		String textMessage = "Проект:{0}. После захвата объектов в хранилище обнаружено отличие конфигурации от конфигурации БД!"
 				+ System.lineSeparator() + System.lineSeparator()
 				+ "Это могут быть изменения, полученные из хранилища во время захвата. Во избежание потерь этих изменений "
 				+ "нужно переключиться на ветку хранилища, импортировать туда все изменения, переключиться на текущую ветку "
 				+ "и влить изменения из ветки хранилища.";
+		textMessage = MessageFormat.format(textMessage, projectName);
 		return textMessage;
 	}
 

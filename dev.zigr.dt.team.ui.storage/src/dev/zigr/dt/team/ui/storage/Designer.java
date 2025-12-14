@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.Map;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.xtext.naming.QualifiedName;
@@ -50,15 +51,18 @@ public class Designer {
 			ServiceAccess.supplier(IConfigDumpInfoStore.class, StorageUiPlugin.getDefault());	
 	
 	private IGitBranchIssueDescriptor issueDescriptor;
+	private IProject project;
 	private Path rootDirectory;
 	private Version version;
 	private Pair<ILaunchableRuntimeComponent, IDesignerSessionThickClientLauncher> thickClient;
 	private String extensionName;
 	
-	public Designer(IGitBranchIssueDescriptor issueDescriptor, Path rootDirectory) throws CoreException, IOException, InterruptedException {
+	public Designer(IGitBranchIssueDescriptor issueDescriptor, String projectName, Path rootDirectory) throws CoreException, IOException, InterruptedException {
 		this.issueDescriptor = issueDescriptor;
+		this.project = getV8ProjectManager().getProject(projectName).getProject();
 		this.rootDirectory = rootDirectory;
-		IResolvableRuntimeInstallation actualInstallation = getInfobaseAccessManager().getInstallation(issueDescriptor.getProject(), issueDescriptor.getInfobase());
+		
+		IResolvableRuntimeInstallation actualInstallation = getInfobaseAccessManager().getInstallation(project, issueDescriptor.getInfobase());
 		RuntimeInstallation thickClientComponent = actualInstallation.get(new String[]{IRuntimeComponentTypes.THICK_CLIENT});
 		version = thickClientComponent.getVersion();
 		thickClient = getRuntimeComponentManager().getComponentAndExecutor(thickClientComponent, IRuntimeComponentTypes.THICK_CLIENT);
@@ -144,7 +148,7 @@ public class Designer {
 			Path configDumpInfoFile = sourceFolder.resolve(IConfigDumpInfoStore.CONFIG_DUMP_INFO);
 			InfobaseAssociationContext context = InfobaseAssociationContext.of(issueDescriptor.getBranch().getName());
 			getProjectSettingsStore().storeConfigDumpInfo(
-					issueDescriptor.getProject(),
+					project,
 					issueDescriptor.getInfobase(),
 					configDumpInfoFile,
 					context);
@@ -177,7 +181,7 @@ public class Designer {
 		
 		Path log = rootDirectory.resolve("lockObjectsOut.txt");
 		RuntimeExecutionCommandBuilder command = getCommandBuilder(log);
-		Settings storageSettings = new Settings(issueDescriptor);
+		Settings storageSettings = new Settings(project.getName());
 		String additionalStartupParameters = "/ConfigurationRepositoryF "+storageSettings.getAddress()
 		+ " /ConfigurationRepositoryN "+storageSettings.getUser()
 		+ (storageSettings.getPassword().isEmpty() ? "" : " /ConfigurationRepositoryP "+storageSettings.getPassword())
@@ -282,7 +286,7 @@ public class Designer {
 
 	public String getExtensionName() throws CoreException, IOException, InterruptedException {
 		String result = "";
-		IV8Project v8Project = getV8ProjectManager().getProject(issueDescriptor.getProject());
+		IV8Project v8Project = getV8ProjectManager().getProject(project);
 		if (v8Project instanceof IExtensionProject extensionProject) {
 			result = extensionProject.getConfiguration().getName();
 		}

@@ -1,7 +1,6 @@
 package dev.zigr.dt.team.ui.storage;
 
 import com._1c.g5.v8.dt.compare.core.V8FileChecker;
-import com._1c.g5.v8.dt.team.git.infobases.IGitBranchIssueDescriptor;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 
@@ -38,11 +37,11 @@ public class V8FileBuilder {
 	private Set<Path> exportFiles;
 	private boolean exportMDWithMDO;
 	
-	public V8FileBuilder(Path exportDirectory, IGitBranchIssueDescriptor issueDescriptor) {
+	public V8FileBuilder(Path exportDirectory, String projectName) {
 		this.exportDirectory = exportDirectory;
 		sourceFiles = new HashSet<String>();
 		exportFiles = new HashSet<Path>();
-		Settings storageSettings = new Settings(issueDescriptor);
+		Settings storageSettings = new Settings(projectName);
 		exportMDWithMDO = storageSettings.getExportMDWithMDO();
 	}
 	

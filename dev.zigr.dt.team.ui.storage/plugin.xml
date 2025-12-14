@@ -43,7 +43,7 @@
                   <iterate
                         ifEmpty="false">
                      <adapt
-                           type="com._1c.g5.v8.dt.team.git.infobases.IGitBranchIssueDescriptor">
+                           type="com._1c.g5.v8.dt.core.platform.IConfigurationAware">
                      </adapt>
                      <with
                            variable="selection">
