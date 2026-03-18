@@ -47,6 +47,10 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.xtext.naming.QualifiedName;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Text;
 
 import com._1c.g5.v8.bm.core.BmPlatform;
 import com._1c.g5.v8.bm.core.IBmNamespace;
@@ -153,10 +157,24 @@ public class ExportHandler implements IHandler {
 
 		final boolean[] confirmed = { false };
 		display.syncExec(() -> {
-			StringBuilder sb = new StringBuilder("Список объектов для захвата в хранилище:\n\n");
+			StringBuilder sb = new StringBuilder();
 			objectsToLock.stream().sorted().forEach(name -> sb.append("- ").append(name).append("\n"));
-			sb.append("\nВы уверены, что хотите продолжить выполнение операции?");
-			confirmed[0] = MessageDialog.openQuestion(shell, "Подтверждение помещения", sb.toString());
+
+			MessageDialog dialog = new MessageDialog(shell, "Подтверждение помещения", null,
+					"Список объектов для захвата в хранилище (можно прокручивать):", MessageDialog.QUESTION,
+					new String[] { "Да", "Нет" }, 0) {
+				@Override
+				protected Control createCustomArea(Composite parent) {
+					Text text = new Text(parent, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.MULTI | SWT.READ_ONLY);
+					GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+					gd.heightHint = 400; // Ограничение высоты для длинных списков
+					gd.widthHint = 600;
+					text.setLayoutData(gd);
+					text.setText(sb.toString());
+					return text;
+				}
+			};
+			confirmed[0] = dialog.open() == 0;
 		});
 
 		if (!confirmed[0]) {
