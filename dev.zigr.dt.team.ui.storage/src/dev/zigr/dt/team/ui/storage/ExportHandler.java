@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Adapters;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.emf.ecore.EObject;
@@ -71,7 +72,7 @@ public class ExportHandler implements IHandler {
 	private IBmModelManager modelManager;
 	@Inject
 	private IExportOperationFactory exportOperationFactory;
-	
+
 	private Shell shell;
 	private IGitBranchIssueDescriptor issueDescriptor;
 	private Settings storageSettings;
@@ -80,20 +81,13 @@ public class ExportHandler implements IHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		shell = HandlerUtil.getActiveShell(event);
 		final Display display = shell.getDisplay();
-		
-		MessageBox startDialog = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-		startDialog.setText("Поместить в хранилище");
-		startDialog.setMessage("Вы уверены, что хотите выполнить помещение изменений в хранилище?");
-		if (startDialog.open() == SWT.NO) {
-			return null;
-		}
-		
+
 		IStructuredSelection selection = HandlerUtil.getCurrentStructuredSelection(event);
 		Object firstElement = selection.getFirstElement();
 		issueDescriptor = (IGitBranchIssueDescriptor) Adapters.adapt(firstElement, IGitBranchIssueDescriptor.class);
-		
+
 		ProgressMonitorDialog progressDialog = new ProgressMonitorDialog(shell);
-		
+
 		try {
 			progressDialog.run(true, true, new IRunnableWithProgress() {
 				@Override
@@ -109,38 +103,80 @@ public class ExportHandler implements IHandler {
 			Throwable cause = e.getCause();
 			StorageUiPlugin.logError(cause.getMessage(), cause);
 			display.syncExec(() -> {
-				MessageDialog.openError(shell, "Ошибка помещения", cause.getMessage());
+				MessageDialog.openError(shell, "Ошибка помещения",
+						cause.getMessage() + "\n\n" +
+								"ЧТО ДЕЛАТЬ:\n" +
+								"1. Зайдите в Конфигуратор 1С.\n" +
+								"2. Отмените захват тех объектов, которые не удалось поместить (если они остались захвачены).\n"
+								+
+								"3. Либо примите другое решение непосредственно в хранилище 1С.");
 			});
 		} catch (InterruptedException e) {
 			StorageUiPlugin.logInfo("Операция прервана пользователем");
 		}
-		
+
 		return null;
 	}
 
 	private void performExport(IProgressMonitor monitor, Display display) throws Exception {
 		monitor.beginTask("Помещение в хранилище", 100);
-		
+
 		monitor.subTask("Вычисление различий в Git...");
 		Map<String, List<DiffEntry>> allDiff = getBranchDiff();
 		monitor.worked(10);
-		
+
 		if (allDiff == null || allDiff.isEmpty()) {
+			display.asyncExec(() -> {
+				MessageDialog.openInformation(shell, "Нет изменений",
+						"Не обнаружено изменений для помещения в хранилище.");
+			});
 			return;
 		}
-		
+
+		final Set<String> objectsToLock = new HashSet<>();
 		for (Map.Entry<String, List<DiffEntry>> entry : allDiff.entrySet()) {
-			if (monitor.isCanceled()) throw new InterruptedException();
-			
+			for (DiffEntry diffEntry : entry.getValue()) {
+				String pathStr = diffEntry.getNewPath();
+				if (pathStr.equals(DiffEntry.DEV_NULL)) {
+					pathStr = diffEntry.getOldPath();
+				}
+				try {
+					QualifiedName qName = qualifiedNameFilePathConverter.getFqn(pathStr);
+					if (qName != null) {
+						objectsToLock.add(qName.toString());
+					}
+				} catch (Exception e) {
+					// Игнорируем файлы, которые не являются объектами метаданных
+				}
+			}
+		}
+
+		final boolean[] confirmed = { false };
+		display.syncExec(() -> {
+			StringBuilder sb = new StringBuilder("Список объектов для захвата в хранилище:\n\n");
+			objectsToLock.stream().sorted().forEach(name -> sb.append("- ").append(name).append("\n"));
+			sb.append("\nВы уверены, что хотите продолжить выполнение операции?");
+			confirmed[0] = MessageDialog.openQuestion(shell, "Подтверждение помещения", sb.toString());
+		});
+
+		if (!confirmed[0]) {
+			throw new InterruptedException("Операция отменена пользователем");
+		}
+
+		for (Map.Entry<String, List<DiffEntry>> entry : allDiff.entrySet()) {
+			if (monitor.isCanceled())
+				throw new InterruptedException();
+
 			String projectName = entry.getKey();
 			List<DiffEntry> diff = entry.getValue();
 			storageSettings = new Settings(projectName);
-			
+
 			Path rootDirectory = FileUtil.createTempDirectory("Zigr").toPath();
-			
+
 			try {
 				if (pushBranchDiff(projectName, diff, rootDirectory, monitor, display)) {
-					String message = MessageFormat.format("Операция помещения в хранилище выполнена. ИБ={0}. Проект={1}",
+					String message = MessageFormat.format(
+							"Операция помещения в хранилище выполнена. ИБ={0}. Проект={1}",
 							issueDescriptor.getInfobase().getName(), projectName);
 					StorageUiPlugin.logInfo(message);
 				}
@@ -152,35 +188,44 @@ public class ExportHandler implements IHandler {
 				}
 			}
 		}
-		
+
 		monitor.done();
 		display.asyncExec(() -> {
-			MessageDialog.openInformation(shell, "Успех", "Операция помещения в хранилище успешно выполнена.");
+			MessageDialog.openInformation(shell, "Успешно помещено",
+					"Операция помещения в хранилище успешно выполнена.\n\n" +
+							"ОБЯЗАТЕЛЬНО:\n" +
+							"1. Зайдите в Конфигуратор 1С.\n" +
+							"2. Проверьте изменения в хранилище.\n" +
+							"3. Примите решение о завершении помещения (Confirm/Commit) в самом хранилище 1С.");
 		});
 	}
 
-	private boolean pushBranchDiff(String projectName, List<DiffEntry> diff, Path rootDirectory, IProgressMonitor monitor, Display display) throws IOException, CoreException, RuntimeExecutionException, InterruptedException {
+	private boolean pushBranchDiff(String projectName, List<DiffEntry> diff, Path rootDirectory,
+			IProgressMonitor monitor, Display display)
+			throws IOException, CoreException, RuntimeExecutionException, InterruptedException {
 		monitor.subTask(MessageFormat.format("Подключение к базе {0}...", projectName));
 		Path exportDirectory = FileUtil.createTempDirectory("Export", rootDirectory).toPath();
 		Designer designer = new Designer(issueDescriptor, projectName, rootDirectory);
-		
+
 		try {
-			if (monitor.isCanceled()) return false;
-			
+			if (monitor.isCanceled())
+				return false;
+
 			designer.closeDesignerSession();
-			
+
 			Map<QualifiedName, Boolean> lockObjects = getLockObjects(diff);
 			if (lockObjects.isEmpty()) {
 				IStatus status = StorageUiPlugin.createErrorStatus("Не удалось определить объекты для захвата");
 				throw new CoreException(status);
 			}
-			
+
 			monitor.subTask("Захват объектов в хранилище (пакетный режим 1С)...");
 			designer.lockObjects(lockObjects);
 			monitor.worked(30);
-			
-			if (monitor.isCanceled()) return false;
-			
+
+			if (monitor.isCanceled())
+				return false;
+
 			monitor.subTask("Сравнение конфигурации с конфигурацией БД...");
 			if (!designer.isConfigurationSame()) {
 				if (storageSettings.getPushIfConfigurationChanged()) {
@@ -194,9 +239,10 @@ public class ExportHandler implements IHandler {
 						dialog.setMessage(textMessage);
 						userProceed[0] = (dialog.open() == SWT.YES);
 					});
-					
+
 					if (!userProceed[0]) {
-						String message = MessageFormat.format("Операция помещения в хранилище отменена пользователем. ИБ={0}. Проект={1}",
+						String message = MessageFormat.format(
+								"Операция помещения в хранилище отменена пользователем. ИБ={0}. Проект={1}",
 								issueDescriptor.getInfobase().getName(), projectName);
 						StorageUiPlugin.logInfo(message);
 						return false;
@@ -208,37 +254,40 @@ public class ExportHandler implements IHandler {
 				}
 			}
 			monitor.worked(10);
-			
-			if (monitor.isCanceled()) return false;
-			
+
+			if (monitor.isCanceled())
+				return false;
+
 			monitor.subTask("Экспорт измененных объектов в формат XML...");
 			EObject[] topObjects = getTopObjects(projectName, diff);
-			IExportOperation exportOperation = exportOperationFactory.createExportOperation
-					(exportDirectory, designer.getVersion(), new IncrementalExportStrategy(), topObjects);
+			IExportOperation exportOperation = exportOperationFactory.createExportOperation(exportDirectory,
+					designer.getVersion(), new IncrementalExportStrategy(), topObjects);
 			IStatus status = exportOperation.run(monitor);
-			if (status.getSeverity() == 4) { 
+			if (status.getSeverity() == 4) {
 				throw new CoreException(status);
 			}
 			monitor.worked(30);
-			
-			if (monitor.isCanceled()) return false;
-			
+
+			if (monitor.isCanceled())
+				return false;
+
 			V8FileBuilder v8FileBuilder = new V8FileBuilder(exportDirectory, projectName);
 			v8FileBuilder.setSourceFiles(diff);
 			Set<Path> exportFiles = v8FileBuilder.getExportFiles();
 			Path listFiles = rootDirectory.resolve("listFiles.txt");
-			try (BufferedWriter writer = new BufferedWriter(new FileWriter(listFiles.toString(), StandardCharsets.UTF_8))){
+			try (BufferedWriter writer = new BufferedWriter(
+					new FileWriter(listFiles.toString(), StandardCharsets.UTF_8))) {
 				for (Path exportFile : exportFiles) {
-					writer.append(exportFile.toString()+System.lineSeparator());
+					writer.append(exportFile.toString() + System.lineSeparator());
 				}
 			} catch (IOException e) {
 				throw e;
 			}
-			
+
 			monitor.subTask("Помещение объектов в хранилище (загрузка XML)...");
 			designer.loadConfigurationFromXml(exportDirectory, listFiles);
 			monitor.worked(20);
-			
+
 			return true;
 		} finally {
 			designer.dispose();
@@ -248,7 +297,7 @@ public class ExportHandler implements IHandler {
 	private EObject[] getTopObjects(String projectName, List<DiffEntry> diff) {
 		Set<EObject> topObjects = new HashSet<EObject>();
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-		
+
 		Set<String> sourceFiles = new HashSet<String>();
 		for (DiffEntry entry : diff) {
 			String sourceFile = entry.getNewPath();
@@ -256,7 +305,7 @@ public class ExportHandler implements IHandler {
 				sourceFiles.add(sourceFile);
 			}
 		}
-		
+
 		Set<String> fqnStrings = new HashSet<String>();
 		for (String sourceFile : sourceFiles) {
 			QualifiedName fqn = qualifiedNameFilePathConverter.getFqn(sourceFile);
@@ -270,7 +319,7 @@ public class ExportHandler implements IHandler {
 				fqnStrings.add(fqn.skipLast(segmentCount - 2).toString());
 			}
 		}
-		
+
 		BmPlatform platform = modelManager.getBmPlatform();
 		IBmNamespace ns = modelManager.getBmNamespace(project);
 		IBmPlatformTransaction transaction = platform.beginReadOnlyTransaction(true);
@@ -285,7 +334,7 @@ public class ExportHandler implements IHandler {
 		} finally {
 			transaction.rollback(); // For safety if commit fails
 		}
-		
+
 		EObject[] result = new EObject[topObjects.size()];
 		topObjects.toArray(result);
 		return result;
@@ -293,7 +342,7 @@ public class ExportHandler implements IHandler {
 
 	private Map<QualifiedName, Boolean> getLockObjects(List<DiffEntry> diff) {
 		Map<QualifiedName, Boolean> result = new HashMap<QualifiedName, Boolean>();
-		
+
 		Set<String> sourceFiles = new HashSet<String>();
 		for (DiffEntry entry : diff) {
 			String oldPath = entry.getOldPath();
@@ -304,12 +353,12 @@ public class ExportHandler implements IHandler {
 			} else {
 				sourceFile = oldPath;
 			}
-			
+
 			if (V8FileBuilder.isV8File(sourceFile)) {
 				sourceFiles.add(sourceFile);
 			}
 		}
-		
+
 		for (String sourceFile : sourceFiles) {
 			QualifiedName fqn = qualifiedNameFilePathConverter.getFqn(sourceFile);
 			if (fqn == null) {
@@ -335,7 +384,7 @@ public class ExportHandler implements IHandler {
 				result.put(fqn.skipLast(segmentCount - 2), true);
 			} else if ("CalculationRegister".equals(firstSegment) && sourceFile.endsWith(".mdo")) {
 				result.put(fqn.skipLast(segmentCount - 2), true);
-			} else if (segmentCount >= 4 
+			} else if (segmentCount >= 4
 					&& ("Form".equals(fqn.getSegment(2)) || "Template".equals(fqn.getSegment(2)))) {
 				result.put(fqn.skipLast(segmentCount - 4), false);
 			} else if (storageSettings.getExportMDWithMDO()) {
@@ -352,13 +401,13 @@ public class ExportHandler implements IHandler {
 				}
 			}
 		}
-		
+
 		return result;
 	}
 
 	public Map<String, List<DiffEntry>> getBranchDiff() {
 		Map<String, List<DiffEntry>> result = new HashMap<String, List<DiffEntry>>();
-		
+
 		List<DiffEntry> allDiff;
 		Repository repository = issueDescriptor.getRepository();
 		try (Git git = new Git(repository)) {
@@ -389,7 +438,7 @@ public class ExportHandler implements IHandler {
 			});
 			return null;
 		}
-		
+
 		for (DiffEntry entry : allDiff) {
 			String oldPath = entry.getOldPath();
 			String newPath = entry.getNewPath();
@@ -399,17 +448,17 @@ public class ExportHandler implements IHandler {
 			} else {
 				sourceFile = newPath;
 			}
-			
+
 			org.eclipse.core.runtime.IPath path = new org.eclipse.core.runtime.Path(sourceFile);
 			if (path.segmentCount() < 2 || !path.segment(1).equals("src")) {
 				continue;
 			}
-			
+
 			String projectName = path.segment(0);
 			List<DiffEntry> projectDiff = result.computeIfAbsent(projectName, k -> new ArrayList<>());
 			projectDiff.add(entry);
 		}
-		
+
 		return result;
 	}
 
@@ -418,12 +467,12 @@ public class ExportHandler implements IHandler {
 		try (RevWalk walk = new RevWalk(repository)) {
 			RevCommit commit = walk.parseCommit(head.getObjectId());
 			RevTree tree = walk.parseTree(commit.getTree().getId());
-			
+
 			CanonicalTreeParser treeParser = new CanonicalTreeParser();
 			try (ObjectReader reader = repository.newObjectReader()) {
 				treeParser.reset(reader, tree.getId());
 			}
-			
+
 			walk.dispose();
 			return treeParser;
 		}
@@ -434,10 +483,12 @@ public class ExportHandler implements IHandler {
 		public boolean exportSubordinatesObjects(EObject eObject) {
 			return !(eObject instanceof Configuration);
 		}
+
 		@Override
 		public boolean exportExternalProperties(EObject eObject) {
 			return true;
 		}
+
 		public boolean exportUnknown() {
 			return false;
 		}

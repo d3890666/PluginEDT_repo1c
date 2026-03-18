@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Configuration repository
 Bundle-SymbolicName: dev.zigr.dt.team.ui.storage;singleton:=true
-Bundle-Version: 0.3.0.qualifier
+Bundle-Version: 1.0.3
 Import-Package: com._1c.g5.v8.activitytracking.core;version="1.0.0",
  com._1c.g5.v8.bm.core;version="9.1.0",
  com._1c.g5.v8.dt.common;version="6.10.100",
@@ -21,16 +21,22 @@ Import-Package: com._1c.g5.v8.activitytracking.core;version="1.0.0",
  com._1c.g5.v8.dt.team;version="1.0.1200",
  com._1c.g5.v8.dt.team.git.infobases;version="1.0.2200",
  com._1c.g5.wiring;version="2.4.0",
- com._1c.g5.wiring.binder;version="1.2.0"
+ com._1c.g5.wiring.binder;version="1.2.0",
+ org.eclipse.core.runtime,
+ org.eclipse.jface.dialogs,
+ org.eclipse.jface.operation,
+ org.eclipse.jgit.diff
 Bundle-Activator: dev.zigr.dt.team.ui.storage.StorageUiPlugin
 Bundle-Vendor: Ziganshin Rinat
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
+ org.eclipse.jface,
+ org.eclipse.jface.text,
  com.google.inject,
  org.eclipse.equinox.security,
  org.eclipse.jgit,
  org.eclipse.xtext,
- org.eclipse.core.resources;bundle-version="3.20.0"
+ org.eclipse.core.resources
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: dev.zigr.dt.team.ui.storage
 Bundle-ActivationPolicy: lazy
