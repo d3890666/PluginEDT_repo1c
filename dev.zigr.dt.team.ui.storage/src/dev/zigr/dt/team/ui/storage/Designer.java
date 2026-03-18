@@ -273,6 +273,10 @@ public class Designer {
 			return lines.stream()
 					.filter(line -> !line.isBlank())
 					.filter(line -> !line.contains("Завершение сеанса"))
+					.filter(line -> !line.contains("Объект захвачен для редактирования:"))
+					.filter(line -> !line.contains("Объект уже захвачен для редактирования:"))
+					.filter(line -> !line.contains("Начало операции с хранилищем"))
+					.filter(line -> !line.contains("Окончание операции с хранилищем"))
 					.collect(Collectors.joining("\n"));
 		} catch (Exception e) {
 			try {
