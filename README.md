@@ -1,10 +1,23 @@
-## Ссылка на файл плагина
+# Плагин "Хранилище конфигурации" для 1C:EDT (Fork)
 
-https://github.com/ZigRinat85/PluginEDT/releases/download/v0.3.0/build.zip
+Данный проект является форком плагина для взаимодействия с хранилищем 1С из среды EDT.
+
+**Оригинальный репозиторий:** [ZigRinat85/PluginEDT](https://github.com/ZigRinat85/PluginEDT)  
+**Автор оригинала:** [Ринат Зиганшин (ZigRinat85)](https://github.com/ZigRinat85)
+
+> [!IMPORTANT]
+> Начиная с версии **1.0.0**, изменения в этом репозитории вносятся [d3890666](https://github.com/d3890666).  
+> Основная цель форка — улучшение UX, добавление интерактивного подтверждения и оптимизация работы с логами.
+
+---
+
+## Ссылка на файл плагина
+Актуальные сборки доступны в разделе [Releases](https://github.com/d3890666/PluginEDT_repo1c/releases).
+
+*(Архивная версия 0.3.0 от оригинала: [скачать](https://github.com/ZigRinat85/PluginEDT/releases/download/v0.3.0/build.zip))*
 
 ## Статья на ![лого инфостарт](https://infostart.ru/bitrix/templates/sandbox_empty/assets/tpl/abo/img/logo.svg)
-
-https://infostart.ru/1c/articles/2442956/
+Оригинальная статья автора: https://infostart.ru/1c/articles/2442956/
 
 ## Новое в версии
 ---
