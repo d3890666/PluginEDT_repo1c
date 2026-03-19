@@ -1,0 +1,26 @@
+=== com/_1c/g5/v8/dt/platform/services/core/runtimes/execution/RuntimeExecutionCommandBuilder.class ===
+Error: class not found: com/_1c/g5/v8/dt/platform/services/core/runtimes/execution/RuntimeExecutionCommandBuilder.class
+
+
+=== com/_1c/g5/v8/dt/platform/services/core/runtimes/environments/IResolvableRuntimeInstallation.class ===
+Compiled from "IResolvableRuntimeInstallation.java"
+public interface com._1c.g5.v8.dt.platform.services.core.runtimes.environments.IResolvableRuntimeInstallation extends java.lang.Comparable<com._1c.g5.v8.dt.platform.services.core.runtimes.environments.IResolvableRuntimeInstallation> {
+  public abstract java.lang.String getName();
+  public abstract java.lang.String getVersionMask();
+  public abstract java.lang.String getRuntimeTypeId();
+  public abstract boolean isConsistent(com._1c.g5.v8.dt.platform.services.core.runtimes.environments.IResolvableRuntimeInstallation);
+  public abstract com._1c.g5.v8.dt.platform.services.model.RuntimeInstallation resolve(java.util.Collection<java.lang.String>, com._1c.g5.v8.dt.platform.services.model.AppArch) throws com._1c.g5.v8.dt.platform.services.core.runtimes.environments.MatchingRuntimeNotFound;
+}
+
+
+=== com/_1c/g5/v8/dt/platform/services/core/runtimes/IRuntimeComponentManager.class ===
+Error: class not found: com/_1c/g5/v8/dt/platform/services/core/runtimes/IRuntimeComponentManager.class
+
+
+=== com/_1c/g5/v8/dt/platform/services/core/infobases/sync/IConfigDumpInfoStore.class ===
+Compiled from "IConfigDumpInfoStore.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.IConfigDumpInfoStore {
+  public static final java.lang.String CONFIG_DUMP_INFO;
+}
+
+

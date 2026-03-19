@@ -1,0 +1,13 @@
+=== com/_1c/g5/v8/dt/platform/services/core/runtimes/execution/ComponentExecutorInfo.class ===
+Compiled from "ComponentExecutorInfo.java"
+public class com._1c.g5.v8.dt.platform.services.core.runtimes.execution.ComponentExecutorInfo<C extends com._1c.g5.v8.dt.platform.services.core.runtimes.execution.IRuntimeComponent, E extends com._1c.g5.v8.dt.platform.services.core.runtimes.execution.IRuntimeComponentExecutor> {
+  private final com._1c.g5.v8.dt.platform.services.model.RuntimeInstallation installation;
+  private final C component;
+  private final E executor;
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.ComponentExecutorInfo(com._1c.g5.v8.dt.platform.services.model.RuntimeInstallation, C, E);
+  public com._1c.g5.v8.dt.platform.services.model.RuntimeInstallation getInstallation();
+  public C getComponent();
+  public E getExecutor();
+}
+
+

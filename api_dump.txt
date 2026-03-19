@@ -1,0 +1,23 @@
+﻿Compiled from "IInfobaseAccessManager.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.IInfobaseAccessManager {
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.IInfobaseAccessSettings createDefaultSettings(com._1c.g5.v8.dt.platform.services.model.InfobaseReference);
+    descriptor: (Lcom/_1c/g5/v8/dt/platform/services/model/InfobaseReference;)Lcom/_1c/g5/v8/dt/platform/services/core/infobases/IInfobaseAccessSettings;
+
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.IInfobaseAccessSettings resolveSettings(com._1c.g5.v8.dt.platform.services.model.InfobaseReference) throws org.eclipse.core.runtime.CoreException;
+    descriptor: (Lcom/_1c/g5/v8/dt/platform/services/model/InfobaseReference;)Lcom/_1c/g5/v8/dt/platform/services/core/infobases/IInfobaseAccessSettings;
+
+  public abstract void updateSettings(com._1c.g5.v8.dt.platform.services.model.InfobaseReference, com._1c.g5.v8.dt.platform.services.core.infobases.IInfobaseAccessSettings) throws org.eclipse.core.runtime.CoreException;
+    descriptor: (Lcom/_1c/g5/v8/dt/platform/services/model/InfobaseReference;Lcom/_1c/g5/v8/dt/platform/services/core/infobases/IInfobaseAccessSettings;)V
+
+  public abstract void addInfobaseAccessSettingsChangeListener(com._1c.g5.v8.dt.platform.services.core.infobases.IInfobaseAccessSettingsChangeListener);
+    descriptor: (Lcom/_1c/g5/v8/dt/platform/services/core/infobases/IInfobaseAccessSettingsChangeListener;)V
+
+  public abstract void removeInfobaseAccessSettingsChangeListener(com._1c.g5.v8.dt.platform.services.core.infobases.IInfobaseAccessSettingsChangeListener);
+    descriptor: (Lcom/_1c/g5/v8/dt/platform/services/core/infobases/IInfobaseAccessSettingsChangeListener;)V
+
+  public abstract java.util.Optional<com._1c.g5.v8.dt.platform.services.core.runtimes.environments.IResolvableRuntimeInstallation> loadSelectedInstallation(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference);
+    descriptor: (Lorg/eclipse/core/resources/IProject;Lcom/_1c/g5/v8/dt/platform/services/model/InfobaseReference;)Ljava/util/Optional;
+
+  public abstract void updateSelectedInstallation(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference, com._1c.g5.v8.dt.platform.services.core.runtimes.environments.IResolvableRuntimeInstallation) throws org.eclipse.core.runtime.CoreException;
+    descriptor: (Lorg/eclipse/core/resources/IProject;Lcom/_1c/g5/v8/dt/platform/services/model/InfobaseReference;Lcom/_1c/g5/v8/dt/platform/services/core/runtimes/environments/IResolvableRuntimeInstallation;)V
+}

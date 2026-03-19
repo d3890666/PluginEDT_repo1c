@@ -142,7 +142,7 @@ public class Designer {
 		Process process = command.start();
 		int returnCode = process.waitFor();
 		if (returnCode != 0) {
-			IStatus status = StorageUiPlugin.createErrorStatus(Files.readString(log));
+			IStatus status = StorageUiPlugin.createErrorStatus(readLogFile(log));
 			throw new CoreException(status);
 		}
 
@@ -168,7 +168,7 @@ public class Designer {
 			// Обновление файла ConfigDumpInfo.xml конфигуратора всё равно происходит в
 			// связи с вызовом .updateConfigDumpInfo() в команде пакетного режима 1С.
 		} else {
-			IStatus status = StorageUiPlugin.createErrorStatus(Files.readString(log));
+			IStatus status = StorageUiPlugin.createErrorStatus(readLogFile(log));
 			throw new CoreException(status);
 		}
 	}
@@ -313,7 +313,7 @@ public class Designer {
 		Process process = command.start();
 		int returnCode = process.waitFor();
 		if (returnCode != 0) {
-			IStatus status = StorageUiPlugin.createErrorStatus(Files.readString(log));
+			IStatus status = StorageUiPlugin.createErrorStatus(readLogFile(log));
 			throw new CoreException(status);
 		}
 

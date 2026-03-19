@@ -1,0 +1,18 @@
+=== com/_1c/g5/v8/dt/platform/services/core/runtimes/execution/RuntimeExecutionCommandBuilder.class ===
+Error: class not found: com/_1c/g5/v8/dt/platform/services/core/runtimes/execution/RuntimeExecutionCommandBuilder.class
+
+
+=== com/_1c/g5/v8/dt/platform/services/core/runtimes/execution/IRuntimeComponentManager.class ===
+Compiled from "IRuntimeComponentManager.java"
+public interface com._1c.g5.v8.dt.platform.services.core.runtimes.execution.IRuntimeComponentManager {
+  public abstract boolean supportsExecution(com._1c.g5.v8.dt.platform.services.model.RuntimeInstallation, java.lang.String);
+  public abstract com._1c.g5.v8.dt.platform.services.core.runtimes.execution.IRuntimeComponentType getType(java.lang.String);
+  public abstract java.util.Collection<com._1c.g5.v8.dt.platform.services.core.runtimes.execution.IRuntimeComponentType> getTypes(java.lang.Class<? extends com._1c.g5.v8.dt.platform.services.core.runtimes.execution.IRuntimeComponentExecutor>);
+  public abstract boolean hasComponent(com._1c.g5.v8.dt.platform.services.model.RuntimeInstallation, java.lang.String...);
+  public abstract com._1c.g5.v8.dt.platform.services.core.runtimes.execution.IRuntimeComponent getComponent(com._1c.g5.v8.dt.platform.services.model.RuntimeInstallation, java.lang.String);
+  public abstract java.util.Collection<com._1c.g5.v8.dt.platform.services.core.runtimes.execution.IRuntimeComponent> getComponents(com._1c.g5.v8.dt.platform.services.model.RuntimeInstallation);
+  public abstract <C extends com._1c.g5.v8.dt.platform.services.core.runtimes.execution.IRuntimeComponent, E extends com._1c.g5.v8.dt.platform.services.core.runtimes.execution.IRuntimeComponentExecutor> com._1c.g5.v8.dt.platform.services.core.runtimes.execution.ComponentExecutorInfo<C, E> resolveExecutor(java.lang.Class<C>, java.lang.Class<E>, com._1c.g5.v8.dt.platform.services.model.RuntimeInstallation, java.lang.String) throws com._1c.g5.v8.dt.platform.services.core.runtimes.execution.RuntimeExecutionException;
+  public abstract java.util.Collection<java.lang.String> idsToVisibleNames(java.util.Collection<java.lang.String>);
+}
+
+

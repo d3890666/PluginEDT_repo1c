@@ -1,0 +1,19 @@
+﻿Compiled from "IInfobaseAccessSettings.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.IInfobaseAccessSettings {
+  public static final com._1c.g5.v8.dt.platform.services.core.infobases.IInfobaseAccessSettings NOT_DEFINED;
+    descriptor: Lcom/_1c/g5/v8/dt/platform/services/core/infobases/IInfobaseAccessSettings;
+  static {};
+    descriptor: ()V
+
+  public abstract com._1c.g5.v8.dt.platform.services.model.InfobaseAccess access();
+    descriptor: ()Lcom/_1c/g5/v8/dt/platform/services/model/InfobaseAccess;
+
+  public abstract java.lang.String userName();
+    descriptor: ()Ljava/lang/String;
+
+  public abstract java.lang.String password();
+    descriptor: ()Ljava/lang/String;
+
+  public abstract java.lang.String additionalProperties();
+    descriptor: ()Ljava/lang/String;
+}

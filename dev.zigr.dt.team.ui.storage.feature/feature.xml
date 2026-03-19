@@ -2,7 +2,7 @@
 <feature
       id="dev.zigr.dt.team.ui.storage.feature"
       label="Configuration repository"
-      version="1.0.3"
+      version="1.0.4.3"
       provider-name="Ziganshin Rinat">
 
    <description>

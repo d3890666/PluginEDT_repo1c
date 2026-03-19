@@ -1,0 +1,75 @@
+=== com/_1c/g5/v8/dt/platform/services/core/runtimes/execution/impl/RuntimeExecutionCommandBuilder.class ===
+Compiled from "RuntimeExecutionCommandBuilder.java"
+public class com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder extends com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.AbstractExecutionCommandBuilder<com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder> {
+  private static final java.lang.String PARAMETER_FORMAT;
+  private static final java.lang.String PARAMETER_FILES;
+  private static final java.lang.String PARAMETER_FILE_LIST;
+  private static final java.lang.String PARAMETER_EXTENSION_NAME;
+  private static final java.lang.String PARAMETER_EXTENSIONS_ALL;
+  private static final java.lang.String PARAMETER_DISABLE_SUPPORT;
+  private static final java.lang.String PARAMETER_FORCE;
+  private static final java.lang.String PARAMETER_GET_CHANGES;
+  private static final java.lang.String PARAMETER_DUMP_INFO_FOR_CHANGES;
+  private static final java.lang.String PARAMETER_UPDATE_CONFIG_DUMP_INFO;
+  private static final java.lang.String PARAMETER_UPDATE;
+  private static final java.lang.String PARAMETER_NO_TRUNCATE;
+  private static final java.lang.String PARAMETER_RECEIVE;
+  private static final java.lang.String PARAMETER_SEND;
+  private static final java.lang.String PARAMETER_CALL;
+  private static final java.lang.String PARAMETER_NO_CHECK;
+  private static final java.lang.String PARAMETER_ARCHIVE;
+  private static final java.lang.String PARAMETER_TPORT;
+  private static final java.lang.String PARAMETER_TEST_CLIENT_ID;
+  private static final java.lang.String PARAMETER_IGNORE_UNRESOLVED_REFS;
+  private static final java.lang.String PARAMETER_PARTIAL;
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder(com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder$ThickClientMode);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder(java.io.File, com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder$ThickClientMode);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder forInfobase(com._1c.g5.v8.dt.platform.services.model.InfobaseReference, boolean);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder forInfobase(com._1c.g5.v8.dt.platform.services.model.IConnectionString, boolean);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder exportXmlFromInfobase(java.nio.file.Path);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder exportMobileXmlFromInfobase(java.nio.file.Path);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder importXmlToInfobase(java.nio.file.Path);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder archive(java.lang.String);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder disableLoadValidation();
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder partial();
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder files(java.io.File...);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder fileList(java.nio.file.Path);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder withFormat(com._1c.g5.v8.dt.platform.services.core.runtimes.execution.ConfigurationFilesFormat);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder withIgnoreUnresolvedRefs();
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder retrieveInfobaseChanges(java.nio.file.Path);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder withConfigDumpInfo(java.nio.file.Path);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder updateConfigDumpInfo();
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder exportOnlyChangedObjectsFromInfobase();
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder checkConfigurationExtensionsApplicability(java.lang.String);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder listConfigurationExtensions();
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder deleteConfigurationExtension(java.lang.String);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder deleteConfigurationExtensions();
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder forExtension(java.lang.String);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder forAllExtensions();
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder updateDatabaseConfiguration();
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder exportDtFromInfobase(java.lang.String);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder importDtToInfobase(java.lang.String);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder exportCfFromInfobase(java.lang.String);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder importCfToInfobase(java.lang.String);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder convertBinaryExternalToXml(com._1c.g5.v8.dt.platform.services.core.runtimes.execution.ConfigurationFilesFormat, java.lang.String, java.lang.String);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder convertXmlExternalToBinary(java.lang.String, java.lang.String);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder createInfobase(com._1c.g5.v8.dt.platform.services.model.InfobaseReference, com._1c.g5.v8.dt.platform.services.model.CreateInfobaseArguments, boolean);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder usingTemplate(java.nio.file.Path);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder emulateDeplay(java.lang.Double, java.lang.Double, java.lang.Double);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder clientType(com._1c.g5.v8.dt.platform.services.model.ClientType);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder autoCheckVersion();
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder disableCheckVersion();
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder disableDistributionSupport(boolean);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder agentMode(java.nio.file.Path);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder agentPort(int);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder logTo(java.io.File, boolean);
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder testManagerMode();
+  public com._1c.g5.v8.dt.platform.services.core.runtimes.execution.impl.RuntimeExecutionCommandBuilder testClientMode(java.lang.Integer, java.lang.String);
+  public java.lang.Process start() throws java.io.IOException;
+  public java.lang.ProcessBuilder toProcessBuilder();
+  public java.lang.String toString();
+  protected void appendOption(java.util.List<java.lang.String>, java.lang.String);
+  protected void appendOptionParameter(java.util.List<java.lang.String>, java.lang.String);
+}
+
+

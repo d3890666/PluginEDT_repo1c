@@ -1,0 +1,389 @@
+=== IConfigDumpInfoStore.class ===
+Compiled from "IConfigDumpInfoStore.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.IConfigDumpInfoStore {
+  public static final java.lang.String CONFIG_DUMP_INFO;
+}
+
+
+=== IInfobaseChangesResolver.class ===
+Compiled from "IInfobaseChangesResolver.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseChangesResolver {
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseConflictResolutionResult resolveInfobaseChanges(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference, java.util.Set<org.eclipse.emf.ecore.EObject>, java.util.Set<org.eclipse.emf.ecore.EObject>, com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseConfigurationChange, com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseUpdateConflictResolver, com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseUpdateConflictResolver$IConflictResolveAssist, com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IInfobaseSynchronizationFlow, org.eclipse.core.runtime.IProgressMonitor) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+}
+
+
+=== IInfobaseConfigurationChange.class ===
+Compiled from "IInfobaseConfigurationChange.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseConfigurationChange {
+  public abstract boolean isEmpty();
+  public abstract boolean isFullReloadRequired();
+  public abstract java.util.Set<com._1c.g5.v8.dt.platform.services.core.infobases.sync.ObjectChange> getObjectChanges();
+}
+
+
+=== IInfobaseSynchonizationQuestionHandler$IInfobaseSynchonizationQuestionContext.class ===
+Compiled from "IInfobaseSynchonizationQuestionHandler.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseSynchonizationQuestionHandler$IInfobaseSynchonizationQuestionContext {
+  public abstract java.lang.String getMessage();
+  public abstract java.util.List<com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseSynchonizationQuestionHandler$InfobaseSynchonizationQuestionAnswer> getAnswers();
+}
+
+
+=== IInfobaseSynchonizationQuestionHandler$InfobaseSynchonizationQuestionAnswer.class ===
+Compiled from "IInfobaseSynchonizationQuestionHandler.java"
+public final class com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseSynchonizationQuestionHandler$InfobaseSynchonizationQuestionAnswer {
+  private final java.lang.String answer;
+  private final java.lang.String label;
+  private final boolean defaultAnswer;
+  public com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseSynchonizationQuestionHandler$InfobaseSynchonizationQuestionAnswer(java.lang.String, java.lang.String, boolean);
+  public java.lang.String getAnswer();
+  public java.lang.String getLabel();
+  public boolean isDefaultAnswer();
+  public java.lang.String toString();
+}
+
+
+=== IInfobaseSynchonizationQuestionHandler.class ===
+Compiled from "IInfobaseSynchonizationQuestionHandler.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseSynchonizationQuestionHandler {
+  public abstract java.util.Optional<com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseSynchonizationQuestionHandler$InfobaseSynchonizationQuestionAnswer> handleQuestion(com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseSynchonizationQuestionHandler$IInfobaseSynchonizationQuestionContext);
+}
+
+
+=== IInfobaseSynchronizationListener.class ===
+Compiled from "IInfobaseSynchronizationListener.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseSynchronizationListener {
+  public abstract void synchronizationStateChanged(com._1c.g5.v8.dt.platform.services.model.InfobaseReference, boolean);
+  public abstract void equalityStateChanged(com._1c.g5.v8.dt.platform.services.model.InfobaseReference, com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseEqualityState);
+}
+
+
+=== IInfobaseSynchronizationManager.class ===
+Compiled from "IInfobaseSynchronizationManager.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseSynchronizationManager {
+  public static final java.lang.String SERVICE_NAME;
+  public abstract java.util.Map<com._1c.g5.v8.dt.platform.services.model.InfobaseReference, java.lang.Boolean> updateAllInfobases(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseUpdateCallback, org.eclipse.core.runtime.IProgressMonitor) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract boolean updateInfobase(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference, com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseUpdateCallback, boolean, org.eclipse.core.runtime.IProgressMonitor) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract boolean reloadInfobase(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference, com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseUpdateCallback, boolean, org.eclipse.core.runtime.IProgressMonitor) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseChangesResolutionResult retrieveInfobaseChanges(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference, com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseChangesResolver, boolean, org.eclipse.core.runtime.IProgressMonitor) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract void connectInfobase(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference, org.eclipse.core.runtime.IProgressMonitor) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract void disconnectInfobase(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference, boolean, boolean, org.eclipse.core.runtime.IProgressMonitor) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract void suppressSynchronization(org.eclipse.core.resources.IProject, boolean) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract java.lang.String getStrategyId(org.eclipse.core.resources.IProject);
+  public abstract java.lang.String getConnectionTypeId(org.eclipse.core.resources.IProject);
+  public abstract boolean isConnected(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference);
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseEqualityState getEqualityState(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference);
+  public abstract void changeSynchronizationSettings(org.eclipse.core.resources.IProject, java.lang.String, java.lang.String, org.eclipse.core.runtime.IProgressMonitor);
+  public abstract void addInfobaseSynchronizationListener(com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseSynchronizationListener);
+  public abstract void removeInfobaseSynchronizationListener(com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseSynchronizationListener);
+  public abstract void reconnectIfConnected(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference, com._1c.g5.v8.dt.platform.services.core.infobases.IInfobaseAccessSettings);
+}
+
+
+=== IInfobaseSynchronizationSettings.class ===
+Compiled from "IInfobaseSynchronizationSettings.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseSynchronizationSettings {
+  public abstract java.lang.String getConnectionTypeId();
+  public abstract java.lang.String getStrategyTypeId();
+  public abstract java.lang.String getName();
+  public abstract java.util.Optional<java.lang.String> getDescription();
+}
+
+
+=== IInfobaseSynchronizationSettingsRegistry.class ===
+Compiled from "IInfobaseSynchronizationSettingsRegistry.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseSynchronizationSettingsRegistry {
+  public abstract java.util.List<com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseSynchronizationSettings> getSettings();
+}
+
+
+=== IInfobaseUpdateCallback.class ===
+Compiled from "IInfobaseUpdateCallback.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseUpdateCallback extends com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseChangesResolver {
+  public abstract boolean onConfirm(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference, java.util.List<com._1c.g5.designer.ssh.client.operation.IDbStructureChange>, org.eclipse.core.runtime.IProgressMonitor);
+}
+
+
+=== IInfobaseUpdateConflictResolver$IConflictResolveAssist.class ===
+Compiled from "IInfobaseUpdateConflictResolver.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseUpdateConflictResolver$IConflictResolveAssist {
+  public abstract void exportFullXmlFromInfobase(java.nio.file.Path) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract void exportIncrementalXmlFromInfobase(java.util.Set<java.lang.String>, java.nio.file.Path) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract void importIncrementalObjectsToInfobase(java.util.Set<org.eclipse.emf.ecore.EObject>, java.util.Set<org.eclipse.emf.ecore.EObject>, com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IUpdateInfobaseFlow) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract void importFullConfigurationToInfobase(com._1c.g5.v8.dt.metadata.mdclass.Configuration, com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IUpdateInfobaseFlow) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract java.util.concurrent.CompletableFuture<java.lang.Boolean> mergeInfobaseChanges(org.eclipse.core.resources.IProject, java.util.Set<java.lang.String>, java.nio.file.Path, java.util.Set<java.lang.String>, boolean) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract java.nio.file.Path createTempDirectory(java.lang.String) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+}
+
+
+=== IInfobaseUpdateConflictResolver.class ===
+Compiled from "IInfobaseUpdateConflictResolver.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseUpdateConflictResolver {
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseConflictResolutionResult resolveConflict(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference, java.util.Set<org.eclipse.emf.ecore.EObject>, java.util.Set<org.eclipse.emf.ecore.EObject>, com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseConfigurationChange, com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseUpdateConflictResolver$IConflictResolveAssist, com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IInfobaseSynchronizationFlow, org.eclipse.core.runtime.IProgressMonitor) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseConflictResolutionResult overrideConflict(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference, java.util.Set<org.eclipse.emf.ecore.EObject>, java.util.Set<org.eclipse.emf.ecore.EObject>, com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseConfigurationChange, com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseUpdateConflictResolver$IConflictResolveAssist, com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IUpdateInfobaseFlow, org.eclipse.core.runtime.IProgressMonitor) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+}
+
+
+=== InfobaseChangesResolutionResult.class ===
+Compiled from "InfobaseChangesResolutionResult.java"
+public final class com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseChangesResolutionResult extends java.lang.Enum<com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseChangesResolutionResult> {
+  public static final com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseChangesResolutionResult NO_CHANGES;
+  public static final com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseChangesResolutionResult CHANGES_RESOLVED;
+  public static final com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseChangesResolutionResult CHANGES_NOT_RESOLVED;
+  public static final com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseChangesResolutionResult CHANGES_IGNORE;
+  public static final com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseChangesResolutionResult UNKNOWN;
+  private static final com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseChangesResolutionResult[] ENUM$VALUES;
+  static {};
+  private com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseChangesResolutionResult(java.lang.String, int);
+  public static com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseChangesResolutionResult[] values();
+  public static com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseChangesResolutionResult valueOf(java.lang.String);
+}
+
+
+=== InfobaseConflictResolutionResult.class ===
+Compiled from "InfobaseConflictResolutionResult.java"
+public final class com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseConflictResolutionResult extends java.lang.Enum<com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseConflictResolutionResult> {
+  public static final com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseConflictResolutionResult DEFERRED;
+  public static final com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseConflictResolutionResult IMPORTED;
+  public static final com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseConflictResolutionResult OVERRIDDEN;
+  public static final com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseConflictResolutionResult IGNORED;
+  private static final com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseConflictResolutionResult[] ENUM$VALUES;
+  static {};
+  private com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseConflictResolutionResult(java.lang.String, int);
+  public static com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseConflictResolutionResult[] values();
+  public static com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseConflictResolutionResult valueOf(java.lang.String);
+}
+
+
+=== InfobaseEqualityState.class ===
+Compiled from "InfobaseEqualityState.java"
+public final class com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseEqualityState extends java.lang.Enum<com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseEqualityState> {
+  public static final com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseEqualityState NOT_EQUAL;
+  public static final com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseEqualityState LOADING;
+  public static final com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseEqualityState EQUAL;
+  private final java.lang.String description;
+  private static final com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseEqualityState[] ENUM$VALUES;
+  static {};
+  private com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseEqualityState(java.lang.String, int, java.lang.String);
+  public static com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseEqualityState fromString(java.lang.String);
+  public java.lang.String getDescription();
+  public static com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseEqualityState[] values();
+  public static com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseEqualityState valueOf(java.lang.String);
+}
+
+
+=== InfobaseSynchronizationException.class ===
+Compiled from "InfobaseSynchronizationException.java"
+public class com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException extends org.eclipse.core.runtime.CoreException {
+  public com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException(org.eclipse.core.runtime.IStatus);
+}
+
+
+=== Messages.class ===
+Compiled from "Messages.java"
+class com._1c.g5.v8.dt.platform.services.core.infobases.sync.Messages extends org.eclipse.osgi.util.NLS {
+  private static final java.lang.String BUNDLE_NAME;
+  public static java.lang.String InfobaseEqualityState_Equal;
+  public static java.lang.String InfobaseEqualityState_Loading;
+  public static java.lang.String InfobaseEqualityState_Not_equal;
+  public static java.lang.String ObjectChangeType_New_object;
+  public static java.lang.String ObjectChangeType_Object_deleted;
+  public static java.lang.String ObjectChangeType_Object_modified;
+  static {};
+  private com._1c.g5.v8.dt.platform.services.core.infobases.sync.Messages();
+}
+
+
+=== ObjectChange.class ===
+Compiled from "ObjectChange.java"
+public final class com._1c.g5.v8.dt.platform.services.core.infobases.sync.ObjectChange {
+  private final java.lang.String platformQualifiedName;
+  private final com._1c.g5.v8.dt.platform.services.core.infobases.sync.ObjectChangeType type;
+  public com._1c.g5.v8.dt.platform.services.core.infobases.sync.ObjectChange(java.lang.String, com._1c.g5.v8.dt.platform.services.core.infobases.sync.ObjectChangeType);
+  public java.lang.String getPlatformQualifiedName();
+  public com._1c.g5.v8.dt.platform.services.core.infobases.sync.ObjectChangeType getType();
+  public java.lang.String getDescription();
+  public java.lang.String toString();
+  public int hashCode();
+  public boolean equals(java.lang.Object);
+}
+
+
+=== ObjectChangeType.class ===
+Compiled from "ObjectChangeType.java"
+public final class com._1c.g5.v8.dt.platform.services.core.infobases.sync.ObjectChangeType extends java.lang.Enum<com._1c.g5.v8.dt.platform.services.core.infobases.sync.ObjectChangeType> {
+  public static final com._1c.g5.v8.dt.platform.services.core.infobases.sync.ObjectChangeType NEW;
+  public static final com._1c.g5.v8.dt.platform.services.core.infobases.sync.ObjectChangeType MODIFIED;
+  public static final com._1c.g5.v8.dt.platform.services.core.infobases.sync.ObjectChangeType DELETED;
+  private final java.lang.String description;
+  private static final com._1c.g5.v8.dt.platform.services.core.infobases.sync.ObjectChangeType[] ENUM$VALUES;
+  static {};
+  private com._1c.g5.v8.dt.platform.services.core.infobases.sync.ObjectChangeType(java.lang.String, int, java.lang.String);
+  public java.lang.String getDescription();
+  public static com._1c.g5.v8.dt.platform.services.core.infobases.sync.ObjectChangeType[] values();
+  public static com._1c.g5.v8.dt.platform.services.core.infobases.sync.ObjectChangeType valueOf(java.lang.String);
+}
+
+
+=== IConfirmChangesOption.class ===
+Compiled from "IConfirmChangesOption.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.IConfirmChangesOption extends com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.ILoadOption,com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.IUpdateOption {
+  public abstract boolean onConfirm(java.util.List<com._1c.g5.designer.ssh.client.operation.IDbStructureChange>);
+}
+
+
+=== IConflictResolveOption.class ===
+Compiled from "IConflictResolveOption.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.IConflictResolveOption extends com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.ILoadOption,com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.IUpdateOption {
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseConflictResolutionResult onConflict(com._1c.g5.v8.dt.platform.services.model.InfobaseReference, java.util.Set<org.eclipse.emf.ecore.EObject>, java.util.Set<org.eclipse.emf.ecore.EObject>, com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseConfigurationChange, com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseUpdateConflictResolver$IConflictResolveAssist, com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IInfobaseSynchronizationFlow, org.eclipse.core.runtime.IProgressMonitor) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+}
+
+
+=== IInfobaseConnection.class ===
+Compiled from "IInfobaseConnection.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.IInfobaseConnection {
+  public abstract void connect(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference, com._1c.g5.v8.dt.platform.services.core.infobases.IInfobaseAccessSettings, com._1c.g5.v8.dt.platform.services.core.runtimes.environments.IResolvableRuntimeInstallation) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract void disconnect() throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract void close();
+  public abstract boolean importIncrementalObjectsToInfobase(java.util.Set<org.eclipse.emf.ecore.EObject>, java.util.Set<org.eclipse.emf.ecore.EObject>, org.eclipse.core.runtime.IProgressMonitor, com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.ILoadOption...) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract boolean importFullConfigurationToInfobase(com._1c.g5.v8.dt.metadata.mdclass.Configuration, org.eclipse.core.runtime.IProgressMonitor, com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.ILoadOption...) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseChangesResolutionResult retrieveConfigurationChanges(java.util.Set<org.eclipse.emf.ecore.EObject>, java.util.Set<org.eclipse.emf.ecore.EObject>, org.eclipse.core.runtime.IProgressMonitor, com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.ILoadOption...) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract boolean updateDatabase(org.eclipse.core.runtime.IProgressMonitor, com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.IUpdateOption...) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract org.eclipse.core.resources.IProject getProject();
+  public abstract com._1c.g5.v8.dt.platform.services.model.InfobaseReference getInfobaseReference();
+  public abstract com._1c.g5.v8.dt.platform.services.core.runtimes.environments.IResolvableRuntimeInstallation getInstallation();
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.IInfobaseAccessSettings getAccessSettings();
+  public abstract void setAccessSettings(com._1c.g5.v8.dt.platform.services.core.infobases.IInfobaseAccessSettings);
+}
+
+
+=== IInfobaseConnectionFactory$IInfobaseConnectionDescription.class ===
+Compiled from "IInfobaseConnectionFactory.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.IInfobaseConnectionFactory$IInfobaseConnectionDescription {
+  public abstract java.lang.String id();
+  public abstract java.lang.String name();
+  public abstract java.util.Optional<java.lang.String> description();
+  public abstract java.util.Collection<com._1c.g5.v8.dt.platform.version.Version> supportedVersions();
+}
+
+
+=== IInfobaseConnectionFactory.class ===
+Compiled from "IInfobaseConnectionFactory.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.IInfobaseConnectionFactory {
+  public abstract java.lang.String getDefaultConnectionTypeId(org.eclipse.core.resources.IProject);
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.IInfobaseConnectionFactory$IInfobaseConnectionDescription getInfobaseConnectionDescription(java.lang.String);
+  public abstract java.util.Collection<com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.IInfobaseConnectionFactory$IInfobaseConnectionDescription> getInfobaseConnectionDescriptions();
+  public abstract java.util.Collection<com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.IInfobaseConnectionFactory$IInfobaseConnectionDescription> getInfobaseConnectionDescriptions(org.eclipse.core.resources.IProject);
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.IInfobaseConnection create(org.eclipse.core.resources.IProject);
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.IInfobaseConnection create(org.eclipse.core.resources.IProject, java.lang.String);
+}
+
+
+=== ILoadOption.class ===
+Compiled from "ILoadOption.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.ILoadOption {
+}
+
+
+=== IUpdateOption.class ===
+Compiled from "IUpdateOption.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.IUpdateOption {
+}
+
+
+=== ISynchronizationStateChangeNotifier.class ===
+Compiled from "ISynchronizationStateChangeNotifier.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.strategies.ISynchronizationStateChangeNotifier {
+  public abstract void notifySyncrhonizationStateChange(com._1c.g5.v8.dt.platform.services.model.InfobaseReference, boolean);
+  public abstract void notifyEqualityStateChange(com._1c.g5.v8.dt.platform.services.model.InfobaseReference, com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseEqualityState);
+}
+
+
+=== ISynchronizationStrategy.class ===
+Compiled from "ISynchronizationStrategy.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.strategies.ISynchronizationStrategy {
+  public abstract boolean isConnected(com._1c.g5.v8.dt.platform.services.model.InfobaseReference);
+  public abstract java.util.Map<com._1c.g5.v8.dt.platform.services.model.InfobaseReference, com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.IInfobaseConnection> getConnections();
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.IInfobaseConnection getConnection(com._1c.g5.v8.dt.platform.services.model.InfobaseReference);
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseEqualityState getEqualityState(com._1c.g5.v8.dt.platform.services.model.InfobaseReference);
+  public abstract com._1c.g5.v8.dt.common.Pair<java.util.Set<org.eclipse.emf.ecore.EObject>, java.util.Set<org.eclipse.emf.ecore.EObject>> collectAddedAndModifiedObjects(com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IInfobaseSynchronizationFlow);
+  public abstract void infobaseConnected(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference, com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.IInfobaseConnection);
+  public abstract void infobaseDisconnected(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference, boolean);
+  public abstract boolean updateInfobase(boolean, com._1c.g5.v8.dt.platform.services.model.InfobaseReference, com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseUpdateCallback, org.eclipse.core.runtime.IProgressMonitor) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseChangesResolutionResult retrieveInfobaseChanges(com._1c.g5.v8.dt.platform.services.model.InfobaseReference, com._1c.g5.v8.dt.platform.services.core.infobases.sync.IInfobaseChangesResolver, boolean, org.eclipse.core.runtime.IProgressMonitor) throws com._1c.g5.v8.dt.platform.services.core.infobases.sync.InfobaseSynchronizationException;
+}
+
+
+=== ISynchronizationStrategyFactory$ISynchronizationStrategyDescription.class ===
+Compiled from "ISynchronizationStrategyFactory.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.strategies.ISynchronizationStrategyFactory$ISynchronizationStrategyDescription {
+  public abstract java.lang.String id();
+  public abstract java.lang.String name();
+  public abstract java.util.Optional<java.lang.String> description();
+}
+
+
+=== ISynchronizationStrategyFactory.class ===
+Compiled from "ISynchronizationStrategyFactory.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.strategies.ISynchronizationStrategyFactory {
+  public abstract java.lang.String getDefaultStrategyId();
+  public abstract java.util.Collection<com._1c.g5.v8.dt.platform.services.core.infobases.sync.strategies.ISynchronizationStrategyFactory$ISynchronizationStrategyDescription> getStrategyDescriptions();
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.sync.strategies.ISynchronizationStrategy createStrategy(java.lang.String);
+}
+
+
+=== IImportAsNewProjectFlow.class ===
+Compiled from "IImportAsNewProjectFlow.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IImportAsNewProjectFlow extends com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IInfobaseSynchronizationFlow {
+  public abstract void setConfigurationProject(org.eclipse.core.resources.IProject);
+  public abstract void addExtensionProject(org.eclipse.core.resources.IProject);
+}
+
+
+=== IInfobaseSynchronizationFlow.class ===
+Compiled from "IInfobaseSynchronizationFlow.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IInfobaseSynchronizationFlow {
+  public default void start();
+  public default void setActualGenerationId(java.lang.String);
+  public default boolean checkGenerationChanged();
+  public default void setActualConfigDumpInfo(java.nio.file.Path);
+  public default void setActualExtensionConfigDumpInfo(org.eclipse.core.resources.IProject, java.nio.file.Path);
+  public default java.util.Map<java.lang.String, java.lang.String> getPlatformResourceVersions();
+  public default java.nio.file.Path getCurrentConfigDumpInfoPath();
+  public abstract void finish();
+  public abstract void cancel();
+  public default void addIncomingEdtResourceChanges(java.nio.file.Path, java.util.Set<java.lang.String>, boolean);
+  public abstract boolean isFinished();
+  public abstract boolean hasSynchronizationInfo();
+  public abstract com._1c.g5.v8.dt.common.Pair<java.util.Set<org.eclipse.emf.ecore.EObject>, java.util.Set<org.eclipse.emf.ecore.EObject>> collectAddedAndModifiedInEdtObjects();
+}
+
+
+=== IInfobaseSynchronizationStateManager.class ===
+Compiled from "IInfobaseSynchronizationStateManager.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IInfobaseSynchronizationStateManager {
+  public static final java.lang.String SERVICE_NAME;
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IUpdateInfobaseFlow startUpdateInfobaseFlow(com._1c.g5.v8.dt.core.platform.IDtProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference);
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IImportAsNewProjectFlow startImportAsNewProjectFlow(com._1c.g5.v8.dt.platform.services.model.InfobaseReference, com._1c.g5.v8.dt.platform.services.core.runtimes.execution.ComponentExecutorInfo<com._1c.g5.v8.dt.platform.services.core.runtimes.execution.ILaunchableRuntimeComponent, com._1c.g5.v8.dt.platform.services.core.runtimes.execution.IThickClientLauncher>);
+  public abstract com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IUpdateProjectFlow startUpdateProjectFlow(com._1c.g5.v8.dt.core.platform.IDtProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference);
+  public abstract boolean isProjectDirty(com._1c.g5.v8.dt.core.platform.IDtProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference);
+  public abstract boolean isProjectDirty(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference);
+  public abstract boolean isFlowActive(com._1c.g5.v8.dt.platform.services.model.InfobaseReference);
+  public abstract boolean hasSynchronizationInfo(org.eclipse.core.resources.IProject, com._1c.g5.v8.dt.platform.services.model.InfobaseReference);
+}
+
+
+=== IUpdateInfobaseFlow.class ===
+Compiled from "IUpdateInfobaseFlow.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IUpdateInfobaseFlow extends com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IInfobaseSynchronizationFlow,com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.ILoadOption {
+  public abstract void setFullReloadRequired(com._1c.g5.v8.dt.core.platform.IDtProject);
+  public abstract boolean isFullReloadRequired();
+}
+
+
+=== IUpdateProjectFlow.class ===
+Compiled from "IUpdateProjectFlow.java"
+public interface com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IUpdateProjectFlow extends com._1c.g5.v8.dt.platform.services.core.infobases.sync.v2.IInfobaseSynchronizationFlow,com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.ILoadOption,com._1c.g5.v8.dt.platform.services.core.infobases.sync.connections.IUpdateOption {
+}
+
+

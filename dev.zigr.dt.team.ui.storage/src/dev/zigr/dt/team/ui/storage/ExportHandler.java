@@ -238,14 +238,24 @@ public class ExportHandler implements IHandler {
 			}
 
 			monitor.subTask("Захват объектов в хранилище (пакетный режим 1С)...");
-			designer.lockObjects(lockObjects);
+			try {
+				designer.lockObjects(lockObjects);
+			} catch (Exception e) {
+				throw new CoreException(StorageUiPlugin.createErrorStatus("Ошибка на этапе захвата объектов (lockObjects):\n" + e.getMessage()));
+			}
 			monitor.worked(30);
 
 			if (monitor.isCanceled())
 				return false;
 
 			monitor.subTask("Сравнение конфигурации с конфигурацией БД...");
-			if (!designer.isConfigurationSame()) {
+			boolean matches = false;
+			try {
+				matches = designer.isConfigurationSame();
+			} catch (Exception e) {
+				throw new CoreException(StorageUiPlugin.createErrorStatus("Ошибка на этапе сравнения конфигураций (isConfigurationSame):\n" + e.getMessage()));
+			}
+			if (!matches) {
 				if (storageSettings.getPushIfConfigurationChanged()) {
 					final boolean[] userProceed = new boolean[1];
 					display.syncExec(() -> {
@@ -292,19 +302,68 @@ public class ExportHandler implements IHandler {
 			V8FileBuilder v8FileBuilder = new V8FileBuilder(exportDirectory, projectName);
 			v8FileBuilder.setSourceFiles(diff);
 			Set<Path> exportFiles = v8FileBuilder.getExportFiles();
-			Path listFiles = rootDirectory.resolve("listFiles.txt");
-			try (BufferedWriter writer = new BufferedWriter(
-					new FileWriter(listFiles.toString(), StandardCharsets.UTF_8))) {
-				for (Path exportFile : exportFiles) {
-					writer.append(exportFile.toString() + System.lineSeparator());
-				}
-			} catch (IOException e) {
-				throw e;
+			monitor.subTask("Помещение объектов в хранилище (загрузка XML)...");
+			
+			Map<String, List<Path>> groupedFiles = new HashMap<>();
+			for (Path exportFile : exportFiles) {
+				String groupName = getObjectGroupName(exportFile);
+				groupedFiles.computeIfAbsent(groupName, k -> new ArrayList<>()).add(exportFile);
 			}
 
-			monitor.subTask("Помещение объектов в хранилище (загрузка XML)...");
-			designer.loadConfigurationFromXml(exportDirectory, listFiles);
-			monitor.worked(20);
+			List<String> failedObjects = new ArrayList<>();
+			int totalGroups = groupedFiles.size();
+			int currentGroup = 0;
+
+			for (Map.Entry<String, List<Path>> entry : groupedFiles.entrySet()) {
+				if (monitor.isCanceled()) throw new InterruptedException();
+				currentGroup++;
+				String groupName = entry.getKey();
+				List<Path> groupPaths = entry.getValue();
+				
+				monitor.subTask(MessageFormat.format("Загрузка объекта {0} ({1} из {2})...", groupName, currentGroup, totalGroups));
+				
+				Path listFilesGroup = rootDirectory.resolve("listFiles_" + currentGroup + ".txt");
+				try (BufferedWriter writer = new BufferedWriter(new FileWriter(listFilesGroup.toString(), StandardCharsets.UTF_8))) {
+					for (Path p : groupPaths) {
+						writer.append(p.toString() + System.lineSeparator());
+					}
+				}
+
+				try {
+					designer.loadConfigurationFromXml(exportDirectory, listFilesGroup);
+				} catch (Exception e) {
+					String errorMsg = e.getMessage();
+					if (errorMsg.contains("Соединение с хранилищем конфигурации не установлено")) {
+						throw new CoreException(StorageUiPlugin.createErrorStatus("Критическая ошибка: " + errorMsg));
+					}
+					failedObjects.add(groupName + ": " + errorMsg);
+				}
+				monitor.worked(20 / totalGroups > 0 ? 20 / totalGroups : 1);
+			}
+
+			if (!failedObjects.isEmpty()) {
+				display.syncExec(() -> {
+					StringBuilder sb = new StringBuilder("Следующие объекты не удалось загрузить в хранилище:\n\n");
+					for (String fail : failedObjects) {
+						sb.append("- ").append(fail).append("\n");
+					}
+					MessageDialog dialog = new MessageDialog(shell, "Ошибки при загрузке некоторых объектов", null,
+							"Операция завершена с ошибками для части объектов:", MessageDialog.WARNING,
+							new String[] { "ОК" }, 0) {
+						@Override
+						protected Control createCustomArea(Composite parent) {
+							Text text = new Text(parent, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.MULTI | SWT.READ_ONLY);
+							GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+							gd.heightHint = 300;
+							gd.widthHint = 600;
+							text.setLayoutData(gd);
+							text.setText(sb.toString());
+							return text;
+						}
+					};
+					dialog.open();
+				});
+			}
 
 			return true;
 		} finally {
@@ -341,6 +400,7 @@ public class ExportHandler implements IHandler {
 		BmPlatform platform = modelManager.getBmPlatform();
 		IBmNamespace ns = modelManager.getBmNamespace(project);
 		IBmPlatformTransaction transaction = platform.beginReadOnlyTransaction(true);
+		boolean committed = false;
 		try {
 			for (String fqnString : fqnStrings) {
 				EObject topObject = (EObject) transaction.getTopObjectByFqn(ns, fqnString);
@@ -349,8 +409,11 @@ public class ExportHandler implements IHandler {
 				}
 			}
 			transaction.commit();
+			committed = true;
 		} finally {
-			transaction.rollback(); // For safety if commit fails
+			if (!committed) {
+				transaction.rollback(); // For safety if commit fails
+			}
 		}
 
 		EObject[] result = new EObject[topObjects.size()];
@@ -510,6 +573,23 @@ public class ExportHandler implements IHandler {
 		public boolean exportUnknown() {
 			return false;
 		}
+	}
+
+	private String getObjectGroupName(Path path) {
+		String p = path.toString().replace("\\", "/");
+		if (p.startsWith("Configuration.xml") || p.startsWith("Ext/")) {
+			return "Configuration";
+		}
+		String[] parts = p.split("/");
+		if (parts.length >= 2) {
+			String type = parts[0];
+			String name = parts[1];
+			if (name.endsWith(".xml")) {
+				name = name.substring(0, name.length() - 4);
+			}
+			return type + "." + name;
+		}
+		return p;
 	}
 
 	private String textMessageIfConfigurationChanged(String projectName) {
